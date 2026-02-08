@@ -1,0 +1,131 @@
+//
+//  GroupFitness.swift
+//  HomeStrength
+//
+//  Models for group fitness classes: routines (30–45 min), sections, exercises with level options, and class logs.
+//
+
+import Foundation
+
+/// Class format / focus for the routine.
+enum GroupClassFormat: String, Codable, CaseIterable, Hashable {
+    case fullBody = "Full-body"
+    case upperBody = "Upper body focus"
+    case lowerBody = "Lower body (pelvic floor safe)"
+    case coreRebuilding = "Core rebuilding (postpartum-friendly)"
+    case cardioHIIT = "Cardio / high-intensity"
+    case lowImpact = "Low-impact / gentle (postpartum)"
+    
+    var icon: String {
+        switch self {
+        case .fullBody: return "figure.arms.open"
+        case .upperBody: return "figure.arms.open"
+        case .lowerBody: return "figure.walk"
+        case .coreRebuilding: return "figure.core.training"
+        case .cardioHIIT: return "figure.highintensity.intervaltraining"
+        case .lowImpact: return "figure.mind.and.body"
+        }
+    }
+}
+
+/// One exercise in a group routine, with options for each level.
+struct GroupFitnessExercise: Identifiable, Codable, Hashable {
+    var id: UUID
+    var name: String
+    var lowKeyOption: String      // Postpartum/beginner
+    var intermediateOption: String
+    var proOption: String        // Advanced
+    /// Duration per side or per set (e.g. 30 seconds).
+    var durationSeconds: Int
+    var restSeconds: Int
+    var postpartumSafe: Bool
+    var formNotes: String?
+    /// Instructor callouts (e.g. "Keep breathing", "Modify if needed").
+    var motivationalCues: [String]
+    
+    init(id: UUID = UUID(), name: String, lowKeyOption: String, intermediateOption: String, proOption: String, durationSeconds: Int = 30, restSeconds: Int = 15, postpartumSafe: Bool = false, formNotes: String? = nil, motivationalCues: [String] = []) {
+        self.id = id
+        self.name = name
+        self.lowKeyOption = lowKeyOption
+        self.intermediateOption = intermediateOption
+        self.proOption = proOption
+        self.durationSeconds = durationSeconds
+        self.restSeconds = restSeconds
+        self.postpartumSafe = postpartumSafe
+        self.formNotes = formNotes
+        self.motivationalCues = motivationalCues
+    }
+}
+
+/// A section of the class (warm-up, main block, cool-down).
+struct GroupFitnessSection: Identifiable, Codable, Hashable {
+    var id: UUID
+    var name: String
+    var durationMinutes: Int
+    var exercises: [GroupFitnessExercise]
+    var bpmSuggested: Int?
+    var instructorCues: [String]
+    
+    init(id: UUID = UUID(), name: String, durationMinutes: Int, exercises: [GroupFitnessExercise], bpmSuggested: Int? = nil, instructorCues: [String] = []) {
+        self.id = id
+        self.name = name
+        self.durationMinutes = durationMinutes
+        self.exercises = exercises
+        self.bpmSuggested = bpmSuggested
+        self.instructorCues = instructorCues
+    }
+}
+
+/// Full 30–45 minute routine for leading a class.
+struct GroupFitnessRoutine: Identifiable, Codable, Hashable {
+    let id: UUID
+    var name: String
+    var format: GroupClassFormat
+    var estimatedMinutes: Int
+    var warmUp: GroupFitnessSection
+    var mainSections: [GroupFitnessSection]
+    var coolDown: GroupFitnessSection
+    var spaceRequirements: String
+    var generalNotes: String?
+    /// Optional: notes on scaling based on group energy/feedback.
+    var scalingNotes: String?
+    
+    init(id: UUID = UUID(), name: String, format: GroupClassFormat, estimatedMinutes: Int, warmUp: GroupFitnessSection, mainSections: [GroupFitnessSection], coolDown: GroupFitnessSection, spaceRequirements: String, generalNotes: String? = nil, scalingNotes: String? = nil) {
+        self.id = id
+        self.name = name
+        self.format = format
+        self.estimatedMinutes = estimatedMinutes
+        self.warmUp = warmUp
+        self.mainSections = mainSections
+        self.coolDown = coolDown
+        self.spaceRequirements = spaceRequirements
+        self.generalNotes = generalNotes
+        self.scalingNotes = scalingNotes
+    }
+}
+
+/// Log of a class you led (for tracking and feedback).
+struct GroupClassLog: Identifiable, Codable {
+    var id: UUID
+    var userId: UUID
+    var routineId: UUID
+    var routineName: String
+    var classFormat: GroupClassFormat
+    var date: Date
+    var participantCount: Int?
+    var notes: String?
+    /// Duration actually used (optional).
+    var durationMinutes: Int?
+    
+    init(id: UUID = UUID(), userId: UUID, routineId: UUID, routineName: String, classFormat: GroupClassFormat, date: Date = Date(), participantCount: Int? = nil, notes: String? = nil, durationMinutes: Int? = nil) {
+        self.id = id
+        self.userId = userId
+        self.routineId = routineId
+        self.routineName = routineName
+        self.classFormat = classFormat
+        self.date = date
+        self.participantCount = participantCount
+        self.notes = notes
+        self.durationMinutes = durationMinutes
+    }
+}
