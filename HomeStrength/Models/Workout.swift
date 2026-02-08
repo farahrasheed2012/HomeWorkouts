@@ -5,6 +5,16 @@
 
 import Foundation
 
+/// Date-seeded RNG so the same calendar day produces the same "today's" exercise subset.
+struct SeededRandomNumberGenerator: RandomNumberGenerator {
+    private var state: UInt64
+    init(seed: UInt64) { self.state = seed }
+    mutating func next() -> UInt64 {
+        state = state &* 6364136223846793005 &+ 1442695040888963407
+        return state
+    }
+}
+
 /// Primary muscle group or focus for a workout. Used to filter and browse by target area.
 enum MuscleGroup: String, Codable, CaseIterable, Hashable {
     case fullBody = "Full Body"
@@ -46,8 +56,10 @@ struct Workout: Identifiable, Hashable {
     var profileType: UserProfileType
     /// Primary muscle group(s) this workout targets. Used for filtering.
     var primaryFocus: MuscleGroup?
+    /// When set, each day a random subset of this many exercises is shown (from exercises pool). Nil = use all exercises.
+    var targetExerciseCount: Int?
     
-    init(id: UUID = UUID(), name: String, summary: String, exercises: [Exercise], estimatedMinutes: Int, profileType: UserProfileType = .mom, primaryFocus: MuscleGroup? = nil) {
+    init(id: UUID = UUID(), name: String, summary: String, exercises: [Exercise], estimatedMinutes: Int, profileType: UserProfileType = .mom, primaryFocus: MuscleGroup? = nil, targetExerciseCount: Int? = 6) {
         self.id = id
         self.name = name
         self.summary = summary
@@ -55,6 +67,18 @@ struct Workout: Identifiable, Hashable {
         self.estimatedMinutes = estimatedMinutes
         self.profileType = profileType
         self.primaryFocus = primaryFocus
+        self.targetExerciseCount = targetExerciseCount
+    }
+    
+    /// Exercises to show for "today": if pool has more than targetExerciseCount, returns a date-seeded random subset; otherwise returns all.
+    func exercisesForToday() -> [Exercise] {
+        let pool = exercises
+        let count = targetExerciseCount ?? pool.count
+        if pool.count <= count { return pool }
+        let day = Calendar.current.startOfDay(for: Date())
+        var rng = SeededRandomNumberGenerator(seed: UInt64(bitPattern: Int64(day.timeIntervalSince1970)))
+        let indices = Array(0..<pool.count).shuffled(using: &rng)
+        return (0..<count).map { pool[indices[$0]] }
     }
     
     func hash(into hasher: inout Hasher) { hasher.combine(id) }

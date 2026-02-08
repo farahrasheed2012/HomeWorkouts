@@ -34,7 +34,8 @@ struct WorkoutDetailView: View {
         userStore.currentUser?.profileType.isYoungKid == true
     }
     private var isCardio: Bool { currentWorkout.name == "Cardio" }
-    private var exercises: [Exercise] { currentWorkout.exercises }
+    /// Today's exercise set: random subset when workout has 10+ exercises so each day is unique.
+    private var exercises: [Exercise] { currentWorkout.exercisesForToday() }
     
     private var elapsedSeconds: Int {
         guard let start = workoutStartDate else { return 0 }
@@ -168,7 +169,7 @@ struct WorkoutDetailView: View {
                 .tint(isYoungKid ? .purple : .orange)
             }
             
-            Section(isYoungKid ? "What we'll do" : "Exercises") {
+            Section(header: Text(isYoungKid ? "What we'll do" : "Exercises"), footer: currentWorkout.exercises.count > exercises.count && !isYoungKid ? Text("Today's \(exercises.count) of \(currentWorkout.exercises.count) — different day, different mix.") : Text("")) {
                 ForEach(currentWorkout.exercises) { exercise in
                     VStack(alignment: .leading, spacing: 0) {
                         ExerciseRowView(
