@@ -196,9 +196,26 @@ struct WorkoutDetailView: View {
                         progressBlock(exercise: exercise)
                         exerciseBlock(exercise: exercise)
                         if restCountdown > 0 {
-                            restBlock
+                            VStack(spacing: 16) {
+                                restBlock
+                                Button {
+                                    restCountdown = 0
+                                    advanceToNext()
+                                } label: {
+                                    Label("Skip rest", systemImage: "forward.fill")
+                                }
+                                .buttonStyle(.bordered)
+                            }
                         } else {
-                            completeSetButton(exercise: exercise)
+                            VStack(spacing: 12) {
+                                completeSetButton(exercise: exercise)
+                                Button {
+                                    skipCurrent()
+                                } label: {
+                                    Label("Skip \(isYoungKid ? "activity" : "exercise")", systemImage: "forward.fill")
+                                }
+                                .buttonStyle(.bordered)
+                            }
                         }
                     }
                     .padding()
@@ -379,6 +396,16 @@ struct WorkoutDetailView: View {
             afterRestGoToNextExercise = false
         } else if let ex = currentExercise, guidedSetIndex < ex.sets - 1 {
             guidedSetIndex += 1
+        }
+    }
+    
+    /// Skip the current exercise (or current set) and go to the next. Does not mark as complete.
+    private func skipCurrent() {
+        if hasMoreExercises {
+            guidedExerciseIndex += 1
+            guidedSetIndex = 0
+        } else {
+            showGuidedComplete = true
         }
     }
 }

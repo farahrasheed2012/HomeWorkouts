@@ -35,13 +35,16 @@ class WorkoutStore: ObservableObject {
         workouts.removeAll { $0.id == id }
     }
     
-    /// Workouts for the given profile, optionally filtered by equipment.
-    func workouts(for profileType: UserProfileType, using equipment: Set<Equipment> = []) -> [Workout] {
+    /// Workouts for the given profile, optionally filtered by equipment and/or muscle group focus.
+    func workouts(for profileType: UserProfileType, using equipment: Set<Equipment> = [], focus: MuscleGroup? = nil) -> [Workout] {
         var list = workouts.filter { $0.profileType == profileType }
         if !equipment.isEmpty {
             list = list.filter { workout in
                 workout.exercises.allSatisfy { equipment.contains($0.equipment) }
             }
+        }
+        if let focus = focus {
+            list = list.filter { $0.primaryFocus == focus }
         }
         return list
     }
@@ -79,6 +82,11 @@ class WorkoutStore: ObservableObject {
             Exercise(name: "Calf Raises", equipment: .bodyweight, sets: 3, reps: "15"),
             Exercise(name: "Treadmill Walk/Jog", equipment: .treadmill, instructions: "5 min warm-up walk, then 15–20 min jog or brisk walk.", sets: 1, reps: "20–25 min"),
             Exercise(name: "Exercise Bike", equipment: .exerciseBike, instructions: "Steady pace 15–20 min, or intervals.", sets: 1, reps: "15–20 min"),
+            Exercise(name: "Superman", equipment: .bodyweight, instructions: "Lie face down, lift arms and legs off the floor. Hold 2 sec.", sets: 3, reps: "10"),
+            Exercise(name: "Dead Bug", equipment: .bodyweight, instructions: "On back, extend opposite arm and leg. Keep low back pressed down.", sets: 3, reps: "8 each side"),
+            Exercise(name: "Bird Dog", equipment: .bodyweight, instructions: "On all fours, extend one arm and opposite leg. Hold 2 sec.", sets: 3, reps: "8 each side"),
+            Exercise(name: "Push-ups (or knee push-ups)", equipment: .bodyweight, instructions: "Hands under shoulders, lower and push back up.", sets: 3, reps: "8–10"),
+            Exercise(name: "Squats", equipment: .bodyweight, instructions: "Bodyweight squats, chest up.", sets: 3, reps: "12"),
         ]
     }
     
@@ -96,7 +104,8 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Glute Bridge", equipment: .bodyweight, instructions: "Feet flat, lift hips. Optional: band above knees.", sets: 3, reps: "12"),
                 ],
                 estimatedMinutes: 35,
-                profileType: .mom
+                profileType: .mom,
+                primaryFocus: .fullBody
             ),
             Workout(
                 name: "Full Body B",
@@ -110,7 +119,8 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Plank", equipment: .bodyweight, sets: 3, reps: "30 sec"),
                 ],
                 estimatedMinutes: 40,
-                profileType: .mom
+                profileType: .mom,
+                primaryFocus: .fullBody
             ),
             Workout(
                 name: "Upper Body",
@@ -124,7 +134,8 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Tricep Extension", equipment: .dumbbells, sets: 3, reps: "10"),
                 ],
                 estimatedMinutes: 35,
-                profileType: .mom
+                profileType: .mom,
+                primaryFocus: .upperBody
             ),
             Workout(
                 name: "Lower Body",
@@ -138,7 +149,8 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Calf Raises", equipment: .bodyweight, sets: 3, reps: "15"),
                 ],
                 estimatedMinutes: 40,
-                profileType: .mom
+                profileType: .mom,
+                primaryFocus: .legs
             ),
             Workout(
                 name: "Cardio",
@@ -148,7 +160,8 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Exercise Bike", equipment: .exerciseBike, instructions: "Steady pace 15–20 min, or intervals.", sets: 1, reps: "15–20 min"),
                 ],
                 estimatedMinutes: 45,
-                profileType: .mom
+                profileType: .mom,
+                primaryFocus: .cardio
             ),
             Workout(
                 name: "Dumbbells Only",
@@ -163,7 +176,8 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Tricep Extension", equipment: .dumbbells, instructions: "One dumbbell overhead or use band.", sets: 3, reps: "10"),
                 ],
                 estimatedMinutes: 35,
-                profileType: .mom
+                profileType: .mom,
+                primaryFocus: .fullBody
             ),
             Workout(
                 name: "Bodyweight Only",
@@ -176,7 +190,8 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Push-ups (or knee push-ups)", equipment: .bodyweight, instructions: "Hands under shoulders, lower and push back up.", sets: 3, reps: "8–10"),
                 ],
                 estimatedMinutes: 25,
-                profileType: .mom
+                profileType: .mom,
+                primaryFocus: .fullBody
             ),
             Workout(
                 name: "Resistance Bands Only",
@@ -187,7 +202,8 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Band Glute Bridge", equipment: .resistanceBands, sets: 3, reps: "12"),
                 ],
                 estimatedMinutes: 20,
-                profileType: .mom
+                profileType: .mom,
+                primaryFocus: .fullBody
             ),
             Workout(
                 name: "Treadmill Session",
@@ -196,7 +212,8 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Treadmill Walk/Jog", equipment: .treadmill, instructions: "5 min warm-up walk, then 15–20 min jog or brisk walk.", sets: 1, reps: "20–25 min"),
                 ],
                 estimatedMinutes: 25,
-                profileType: .mom
+                profileType: .mom,
+                primaryFocus: .cardio
             ),
             Workout(
                 name: "Exercise Bike Session",
@@ -205,7 +222,8 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Exercise Bike", equipment: .exerciseBike, instructions: "Steady pace 15–20 min, or intervals.", sets: 1, reps: "15–20 min"),
                 ],
                 estimatedMinutes: 20,
-                profileType: .mom
+                profileType: .mom,
+                primaryFocus: .cardio
             ),
             Workout(
                 name: "Home Gym Only",
@@ -215,7 +233,101 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Chest Press", equipment: .homeGym, sets: 3, reps: "10"),
                 ],
                 estimatedMinutes: 25,
-                profileType: .mom
+                profileType: .mom,
+                primaryFocus: .fullBody
+            ),
+            // Muscle-group focused workouts
+            Workout(
+                name: "Legs",
+                summary: "Quads, hamstrings, and calves. Build strong legs.",
+                exercises: [
+                    Exercise(name: "Goblet Squat", equipment: .dumbbells, instructions: "Hold one dumbbell at chest. Squat down, keep chest up.", sets: 3, reps: "10"),
+                    Exercise(name: "Leg Press", equipment: .homeGym, instructions: "Feet shoulder-width. Push through heels.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Dumbbell Lunge", equipment: .dumbbells, instructions: "Alternate legs.", sets: 3, reps: "8 each"),
+                    Exercise(name: "Dumbbell Romanian Deadlift", equipment: .dumbbells, instructions: "Slight bend in knees, hinge at hips.", sets: 3, reps: "10"),
+                    Exercise(name: "Calf Raises", equipment: .bodyweight, sets: 3, reps: "15"),
+                ],
+                estimatedMinutes: 35,
+                profileType: .mom,
+                primaryFocus: .legs
+            ),
+            Workout(
+                name: "Glutes",
+                summary: "Glute-focused. Bridges and hinges.",
+                exercises: [
+                    Exercise(name: "Glute Bridge", equipment: .bodyweight, instructions: "Feet flat, lift hips. Squeeze glutes at top.", sets: 3, reps: "12"),
+                    Exercise(name: "Band Glute Bridge", equipment: .resistanceBands, sets: 3, reps: "12"),
+                    Exercise(name: "Dumbbell Romanian Deadlift", equipment: .dumbbells, instructions: "Hinge at hips, feel the stretch in hamstrings.", sets: 3, reps: "10"),
+                    Exercise(name: "Goblet Squat", equipment: .dumbbells, instructions: "Squat deep to engage glutes.", sets: 3, reps: "10"),
+                ],
+                estimatedMinutes: 28,
+                profileType: .mom,
+                primaryFocus: .glutes
+            ),
+            Workout(
+                name: "Back",
+                summary: "Rows and upper back. Posture and pull strength.",
+                exercises: [
+                    Exercise(name: "Dumbbell Row", equipment: .dumbbells, instructions: "Support on bench or chair. Row to hip.", sets: 3, reps: "10 each"),
+                    Exercise(name: "Band Pull-Apart", equipment: .resistanceBands, instructions: "Hold band in front, pull apart squeezing shoulder blades.", sets: 3, reps: "15"),
+                    Exercise(name: "Dumbbell Romanian Deadlift", equipment: .dumbbells, instructions: "Slight bend in knees, hinge at hips.", sets: 3, reps: "10"),
+                    Exercise(name: "Superman", equipment: .bodyweight, instructions: "Lie face down, lift arms and legs off the floor. Hold 2 sec.", sets: 3, reps: "10"),
+                ],
+                estimatedMinutes: 30,
+                profileType: .mom,
+                primaryFocus: .back
+            ),
+            Workout(
+                name: "Chest",
+                summary: "Presses and push. Chest and front delts.",
+                exercises: [
+                    Exercise(name: "Dumbbell Floor Press", equipment: .dumbbells, instructions: "On back, press dumbbells up from floor.", sets: 3, reps: "10"),
+                    Exercise(name: "Chest Press", equipment: .homeGym, sets: 3, reps: "10"),
+                    Exercise(name: "Band Chest Stretch / Push", equipment: .resistanceBands, sets: 3, reps: "12"),
+                    Exercise(name: "Push-ups (or knee push-ups)", equipment: .bodyweight, instructions: "Hands under shoulders, lower and push back up.", sets: 3, reps: "8–10"),
+                ],
+                estimatedMinutes: 28,
+                profileType: .mom,
+                primaryFocus: .chest
+            ),
+            Workout(
+                name: "Shoulders",
+                summary: "Overhead press and rear delts. Strong, stable shoulders.",
+                exercises: [
+                    Exercise(name: "Dumbbell Shoulder Press", equipment: .dumbbells, instructions: "Press dumbbells overhead. Control the descent.", sets: 3, reps: "10"),
+                    Exercise(name: "Band Pull-Apart", equipment: .resistanceBands, instructions: "Hold band in front, pull apart. Great for rear delts.", sets: 3, reps: "15"),
+                    Exercise(name: "Band Chest Stretch / Push", equipment: .resistanceBands, sets: 2, reps: "12"),
+                    Exercise(name: "Plank", equipment: .bodyweight, sets: 3, reps: "30 sec"),
+                ],
+                estimatedMinutes: 25,
+                profileType: .mom,
+                primaryFocus: .shoulders
+            ),
+            Workout(
+                name: "Arms",
+                summary: "Biceps and triceps. Curls and extensions.",
+                exercises: [
+                    Exercise(name: "Dumbbell Bicep Curl", equipment: .dumbbells, sets: 3, reps: "10"),
+                    Exercise(name: "Tricep Extension", equipment: .dumbbells, instructions: "One dumbbell overhead or use band.", sets: 3, reps: "10"),
+                    Exercise(name: "Dumbbell Row", equipment: .dumbbells, instructions: "Support on bench. Row to hip; also works biceps.", sets: 2, reps: "10 each"),
+                    Exercise(name: "Dumbbell Floor Press", equipment: .dumbbells, instructions: "On back, press up; triceps assist.", sets: 2, reps: "10"),
+                ],
+                estimatedMinutes: 28,
+                profileType: .mom,
+                primaryFocus: .arms
+            ),
+            Workout(
+                name: "Core",
+                summary: "Abs and stability. Planks and anti-rotation.",
+                exercises: [
+                    Exercise(name: "Plank", equipment: .bodyweight, sets: 3, reps: "30 sec"),
+                    Exercise(name: "Glute Bridge", equipment: .bodyweight, instructions: "Feet flat, lift hips. Engages core.", sets: 3, reps: "12"),
+                    Exercise(name: "Dead Bug", equipment: .bodyweight, instructions: "On back, extend opposite arm and leg. Keep low back pressed down.", sets: 3, reps: "8 each side"),
+                    Exercise(name: "Bird Dog", equipment: .bodyweight, instructions: "On all fours, extend one arm and opposite leg. Hold 2 sec.", sets: 3, reps: "8 each side"),
+                ],
+                estimatedMinutes: 22,
+                profileType: .mom,
+                primaryFocus: .core
             ),
         ]
     }

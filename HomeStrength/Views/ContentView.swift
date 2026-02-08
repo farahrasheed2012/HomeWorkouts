@@ -10,6 +10,7 @@ struct ContentView: View {
     @EnvironmentObject var store: WorkoutStore
     @EnvironmentObject var progressStore: ProgressStore
     @State private var selectedEquipment: Set<Equipment> = []
+    @State private var selectedFocus: MuscleGroup?
     @State private var showDesignWorkout = false
     @State private var showGenerator = false
     @State private var showProfilePicker = false
@@ -20,7 +21,7 @@ struct ContentView: View {
     
     private var filteredWorkouts: [Workout] {
         guard let profile = currentProfileType else { return [] }
-        return store.workouts(for: profile, using: selectedEquipment)
+        return store.workouts(for: profile, using: selectedEquipment, focus: selectedFocus)
     }
     
     private var isYoungKid: Bool { currentProfileType?.isYoungKid == true }
@@ -84,6 +85,43 @@ struct ContentView: View {
                                                 Image(systemName: eq.icon)
                                                     .font(.caption)
                                                 Text(eq.rawValue)
+                                                    .font(.caption)
+                                            }
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 8)
+                                            .background(isSelected ? Color.orange.opacity(0.35) : Color.gray.opacity(0.2))
+                                            .foregroundStyle(isSelected ? .primary : .secondary)
+                                            .clipShape(Capsule())
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                                .padding(.vertical, 4)
+                            }
+                        }
+                        .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+                        .listRowBackground(Color.clear)
+                    }
+                    Section {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Muscle group")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundStyle(.secondary)
+                            Text("Tap a focus to see workouts for that area. Tap again to clear.")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 8) {
+                                    ForEach(MuscleGroup.allCases, id: \.self) { focus in
+                                        let isSelected = selectedFocus == focus
+                                        Button {
+                                            selectedFocus = isSelected ? nil : focus
+                                        } label: {
+                                            HStack(spacing: 6) {
+                                                Image(systemName: focus.icon)
+                                                    .font(.caption)
+                                                Text(focus.displayName)
                                                     .font(.caption)
                                             }
                                             .padding(.horizontal, 12)
