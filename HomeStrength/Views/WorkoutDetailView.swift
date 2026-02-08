@@ -17,69 +17,105 @@ struct WorkoutDetailView: View {
     @State private var restTimerSeconds = 60
     @State private var showCelebration = false
     
+    // Guided workout: time tracking and auto-advance
+    @State private var isGuidedMode = false
+    @State private var guidedExerciseIndex = 0
+    @State private var guidedSetIndex = 0
+    @State private var restCountdown = 0
+    @State private var workoutStartDate: Date?
+    @State private var tick = 0
+    @State private var showGuidedComplete = false
+    @State private var afterRestGoToNextExercise = false
+    
     private var currentWorkout: Workout {
         store.workouts.first(where: { $0.id == workout.id }) ?? workout
     }
     private var isYoungKid: Bool {
         userStore.currentUser?.profileType.isYoungKid == true
     }
+    private var isCardio: Bool { currentWorkout.name == "Cardio" }
+    private var exercises: [Exercise] { currentWorkout.exercises }
+    
+    private var elapsedSeconds: Int {
+        guard let start = workoutStartDate else { return 0 }
+        return max(0, Int(Date().timeIntervalSince(start)))
+    }
+    
+    private var currentExercise: Exercise? {
+        guard guidedExerciseIndex < exercises.count else { return nil }
+        return exercises[guidedExerciseIndex]
+    }
+    
+    private var isLastSetOfExercise: Bool {
+        guard let ex = currentExercise else { return true }
+        return guidedSetIndex >= ex.sets - 1
+    }
+    
+    private var hasMoreExercises: Bool {
+        guidedExerciseIndex < exercises.count - 1
+    }
+    
+    private var isWorkoutComplete: Bool {
+        guard let ex = currentExercise else { return true }
+        return guidedExerciseIndex >= exercises.count - 1 && isLastSetOfExercise && restCountdown == 0
+    }
     
     var body: some View {
-        List {
-            Section {
-                Text(currentWorkout.summary)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text("Estimated time: \(currentWorkout.estimatedMinutes) min")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
-            
-            Section(isYoungKid ? "What we'll do" : "Exercises") {
-                ForEach(currentWorkout.exercises) { exercise in
-                    ExerciseRowView(
-                        exercise: exercise,
-                        isCardio: currentWorkout.name == "Cardio",
-                        isSimpleMode: isYoungKid,
-                        completedSetIds: $completedSets,
-                        onStartRest: {
-                            restTimerSeconds = exercise.restSeconds
-                            showRestTimer = true
-                        }
-                    )
-                }
+        Group {
+            if isGuidedMode {
+                guidedWorkoutBody
+            } else {
+                listBody
             }
         }
         .navigationTitle(currentWorkout.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                if isYoungKid {
-                    Button {
-                        showLogSheet = true
-                    } label: {
-                        Label("I did it!", systemImage: "checkmark.circle.fill")
+            if isGuidedMode {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Exit") {
+                        endGuidedMode()
                     }
-                } else {
-                    Menu {
-                        Button {
-                            showRestTimer = true
-                        } label: {
-                            Label("Rest timer", systemImage: "timer")
-                        }
+                }
+            } else {
+                ToolbarItem(placement: .primaryAction) {
+                    if isYoungKid {
                         Button {
                             showLogSheet = true
                         } label: {
-                            Label("Complete workout", systemImage: "checkmark.circle")
+                            Label("I did it!", systemImage: "checkmark.circle.fill")
                         }
-                        Button {
-                            showEditSheet = true
+                    } else {
+                        Menu {
+                            Button {
+                                showRestTimer = true
+                            } label: {
+                                Label("Rest timer", systemImage: "timer")
+                            }
+                            Button {
+                                showLogSheet = true
+                            } label: {
+                                Label("Complete workout", systemImage: "checkmark.circle")
+                            }
+                            Button {
+                                showEditSheet = true
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
                         } label: {
-                            Label("Edit", systemImage: "pencil")
+                            Image(systemName: "ellipsis.circle")
                         }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
                     }
+                }
+            }
+        }
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+            guard isGuidedMode else { return }
+            tick = tick + 1
+            if restCountdown > 0 {
+                restCountdown -= 1
+                if restCountdown == 0 {
+                    advanceToNext()
                 }
             }
         }
@@ -108,6 +144,241 @@ struct WorkoutDetailView: View {
             RestTimerView(initialSeconds: restTimerSeconds) {
                 showRestTimer = false
             }
+        }
+    }
+    
+    private var listBody: some View {
+        List {
+            Section {
+                Text(currentWorkout.summary)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Text("Estimated time: \(currentWorkout.estimatedMinutes) min")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                Button {
+                    startGuidedMode()
+                } label: {
+                    Label(isYoungKid ? "Start activities (timed & auto-advance)" : "Start workout (timed & auto-advance)", systemImage: "play.circle.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(isYoungKid ? .purple : .orange)
+            }
+            
+            Section(isYoungKid ? "What we'll do" : "Exercises") {
+                ForEach(currentWorkout.exercises) { exercise in
+                    ExerciseRowView(
+                        exercise: exercise,
+                        isCardio: isCardio,
+                        isSimpleMode: isYoungKid,
+                        completedSetIds: $completedSets,
+                        onStartRest: {
+                            restTimerSeconds = exercise.restSeconds
+                            showRestTimer = true
+                        }
+                    )
+                }
+            }
+        }
+    }
+    
+    private var guidedWorkoutBody: some View {
+        Group {
+            if showGuidedComplete {
+                guidedCompleteView
+            } else if let exercise = currentExercise {
+                ScrollView {
+                    VStack(spacing: 24) {
+                        elapsedTimerBlock
+                        progressBlock(exercise: exercise)
+                        exerciseBlock(exercise: exercise)
+                        if restCountdown > 0 {
+                            restBlock
+                        } else {
+                            completeSetButton(exercise: exercise)
+                        }
+                    }
+                    .padding()
+                }
+            } else {
+                guidedCompleteView
+            }
+        }
+    }
+    
+    private var elapsedTimerBlock: some View {
+        let m = elapsedSeconds / 60
+        let s = elapsedSeconds % 60
+        return HStack {
+            Image(systemName: "timer")
+                .foregroundStyle(.orange)
+            Text(String(format: "%d:%02d", m, s))
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .monospacedDigit()
+            Text("elapsed")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color.orange.opacity(0.12))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
+    private func progressBlock(exercise: Exercise) -> some View {
+        let exNum = guidedExerciseIndex + 1
+        let totalEx = exercises.count
+        let setNum = min(guidedSetIndex + 1, exercise.sets)
+        let totalSets = exercise.sets
+        return HStack(spacing: 16) {
+            Text("Exercise \(exNum) of \(totalEx)")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Text("Set \(setNum) of \(totalSets)")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    private func exerciseBlock(exercise: Exercise) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Image(systemName: exercise.equipment.icon)
+                    .font(.title2)
+                    .foregroundStyle(.orange)
+                Text(exercise.name)
+                    .font(.title2)
+                    .fontWeight(.semibold)
+            }
+            if let instructions = exercise.instructions, !instructions.isEmpty {
+                Text(instructions)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            if isCardio || exercise.sets == 1 {
+                Text(exercise.reps)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("\(exercise.sets) sets × \(exercise.reps)")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Text("Rest \(exercise.restSeconds)s between sets")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
+    private var restBlock: some View {
+        VStack(spacing: 8) {
+            Text("Rest")
+                .font(.headline)
+                .foregroundStyle(.secondary)
+            Text("\(restCountdown)s")
+                .font(.system(size: 44, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(restCountdown <= 10 ? .orange : .primary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(28)
+        .background(Color.orange.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
+    private func completeSetButton(exercise: Exercise) -> some View {
+        let isSingleSet = isCardio || exercise.sets <= 1 || isYoungKid
+        let label = isSingleSet ? "Done with this \(isYoungKid ? "activity" : "exercise")" : "Complete set \(guidedSetIndex + 1)"
+        return Button {
+            completeCurrentSet(exercise: exercise)
+        } label: {
+            Label(label, systemImage: "checkmark.circle.fill")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.green)
+    }
+    
+    private var guidedCompleteView: some View {
+        VStack(spacing: 24) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(.green)
+            Text("Workout complete!")
+                .font(.title)
+                .fontWeight(.bold)
+            let m = elapsedSeconds / 60
+            let s = elapsedSeconds % 60
+            Text("Time: \(m):\(String(format: "%02d", s))")
+                .font(.title2)
+                .foregroundStyle(.secondary)
+            Button {
+                showGuidedComplete = false
+                showLogSheet = true
+            } label: {
+                Label("Log workout", systemImage: "checkmark.circle")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.orange)
+            Button {
+                endGuidedMode()
+            } label: {
+                Text("Done")
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding(32)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func startGuidedMode() {
+        isGuidedMode = true
+        guidedExerciseIndex = 0
+        guidedSetIndex = 0
+        restCountdown = 0
+        workoutStartDate = Date()
+        showGuidedComplete = false
+    }
+    
+    private func endGuidedMode() {
+        isGuidedMode = false
+        workoutStartDate = nil
+        showGuidedComplete = false
+    }
+    
+    private func completeCurrentSet(exercise: Exercise) {
+        if isLastSetOfExercise && !hasMoreExercises {
+            showGuidedComplete = true
+            return
+        }
+        let restSeconds = exercise.restSeconds
+        if restSeconds > 0 && (!isLastSetOfExercise || hasMoreExercises) {
+            afterRestGoToNextExercise = isLastSetOfExercise
+            restCountdown = restSeconds
+        } else {
+            advanceToNext()
+        }
+    }
+    
+    private func advanceToNext() {
+        if afterRestGoToNextExercise {
+            guidedExerciseIndex += 1
+            guidedSetIndex = 0
+            afterRestGoToNextExercise = false
+        } else if let ex = currentExercise, guidedSetIndex < ex.sets - 1 {
+            guidedSetIndex += 1
         }
     }
 }
