@@ -170,16 +170,23 @@ struct WorkoutDetailView: View {
             
             Section(isYoungKid ? "What we'll do" : "Exercises") {
                 ForEach(currentWorkout.exercises) { exercise in
-                    ExerciseRowView(
-                        exercise: exercise,
-                        isCardio: isCardio,
-                        isSimpleMode: isYoungKid,
-                        completedSetIds: $completedSets,
-                        onStartRest: {
-                            restTimerSeconds = exercise.restSeconds
-                            showRestTimer = true
+                    VStack(alignment: .leading, spacing: 0) {
+                        ExerciseRowView(
+                            exercise: exercise,
+                            isCardio: isCardio,
+                            isSimpleMode: isYoungKid,
+                            completedSetIds: $completedSets,
+                            onStartRest: {
+                                restTimerSeconds = exercise.restSeconds
+                                showRestTimer = true
+                            }
+                        )
+                        if let detail = ExerciseDetailStore.detail(forExerciseName: exercise.name), !isYoungKid {
+                            ExerciseStepsCard(detail: detail)
+                                .padding(.top, 8)
                         }
-                    )
+                    }
+                    .padding(.vertical, 4)
                 }
             }
         }
@@ -287,6 +294,10 @@ struct WorkoutDetailView: View {
                 Text("Rest \(exercise.restSeconds)s between sets")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
+            }
+            if let detail = ExerciseDetailStore.detail(forExerciseName: exercise.name) {
+                ExerciseStepsCard(detail: detail, compact: false)
+                    .padding(.top, 4)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -407,6 +418,97 @@ struct WorkoutDetailView: View {
         } else {
             showGuidedComplete = true
         }
+    }
+}
+
+/// Steps, tips, safety, and variations for an exercise (like Group Fitness routine detail).
+struct ExerciseStepsCard: View {
+    let detail: ExerciseDetail
+    var compact: Bool = true
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if !compact && !detail.summary.isEmpty {
+                Text(detail.summary)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            if !detail.steps.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("How to do it")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    ForEach(Array(detail.steps.enumerated()), id: \.offset) { i, step in
+                        HStack(alignment: .top, spacing: 6) {
+                            Text("\(i + 1).")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                            Text(step)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+            if !detail.tips.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Tips")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    ForEach(detail.tips, id: \.self) { tip in
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.orange)
+                            Text(tip)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+            if !detail.muscles.isEmpty && !detail.isKidFriendly {
+                Text("Muscles: \(detail.muscles.joined(separator: ", "))")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+            if let safety = detail.safetyNote, !safety.isEmpty {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Safety")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    Text(safety)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            if detail.easyVariation != nil || detail.mediumVariation != nil || detail.difficultVariation != nil {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Variations by level")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    if let e = detail.easyVariation, !e.isEmpty {
+                        Text("Easy: \(e)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    if let m = detail.mediumVariation, !m.isEmpty {
+                        Text("Medium: \(m)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    if let d = detail.difficultVariation, !d.isEmpty {
+                        Text("Difficult: \(d)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.tertiarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 

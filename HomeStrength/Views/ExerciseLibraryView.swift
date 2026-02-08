@@ -697,7 +697,133 @@ enum ExerciseDetailStore {
             difficultVariation: "HIIT intervals or longer steady ride.",
             imagePlaceholderName: "ExerciseBike"
         ),
+        ExerciseDetail(
+            exerciseName: "Superman",
+            equipment: .bodyweight,
+            summary: "Lie face down and lift arms and legs off the floor. Strengthens lower back and glutes.",
+            steps: [
+                "Lie face down on the floor with arms extended in front and legs straight.",
+                "Lift your arms, chest, and legs off the floor at the same time. Keep your gaze down.",
+                "Hold for 2–3 seconds at the top, squeezing your lower back and glutes.",
+                "Lower with control and repeat.",
+            ],
+            tips: [
+                "Keep the movement controlled; don't swing or use momentum.",
+                "Lengthen through your spine rather than crunching your neck.",
+            ],
+            muscles: ["Lower back", "Glutes", "Rear deltoids"],
+            targets: ["Strength", "Stability"],
+            safetyNote: "If you have lower back issues, do a smaller range or skip this exercise.",
+            difficultyLevel: .easy,
+            easyVariation: "Lift arms only, or legs only, alternating.",
+            mediumVariation: "Full Superman hold 2 sec.",
+            difficultVariation: "Hold longer or add pulses at the top.",
+            imagePlaceholderName: nil
+        ),
+        ExerciseDetail(
+            exerciseName: "Dead Bug",
+            equipment: .bodyweight,
+            summary: "On your back, extend opposite arm and leg while keeping your low back pressed down. Builds core stability.",
+            steps: [
+                "Lie on your back. Press your lower back into the floor. Lift knees to 90° and arms toward the ceiling.",
+                "Extend your right arm overhead and left leg toward the floor. Keep your back flat.",
+                "Return to the start and repeat with the left arm and right leg.",
+                "Move slowly and with control.",
+            ],
+            tips: [
+                "Exhale as you extend; keep your ribs down.",
+                "If your back arches, shorten the range or keep the moving leg bent.",
+            ],
+            muscles: ["Core", "Transverse abdominis"],
+            targets: ["Stability", "Strength"],
+            safetyNote: "Keep your lower back pressed to the floor. Stop if you feel back strain.",
+            difficultyLevel: .medium,
+            easyVariation: "Bent legs, or arms only / legs only.",
+            mediumVariation: "Full dead bug, slow tempo.",
+            difficultVariation: "Straight legs, longer hold at extension.",
+            imagePlaceholderName: nil
+        ),
+        ExerciseDetail(
+            exerciseName: "Bird Dog",
+            equipment: .bodyweight,
+            summary: "On all fours, extend one arm and the opposite leg. Improves balance and core stability.",
+            steps: [
+                "Start on hands and knees, wrists under shoulders, knees under hips.",
+                "Extend your right arm forward and left leg back. Keep your back flat and core tight.",
+                "Hold for 2 seconds, then return to the start.",
+                "Repeat with the left arm and right leg.",
+            ],
+            tips: [
+                "Keep your hips level; don't let them rotate.",
+                "Look at the floor to keep your neck neutral.",
+            ],
+            muscles: ["Core", "Lower back", "Glutes"],
+            targets: ["Stability", "Balance"],
+            safetyNote: "Move slowly. If your back rounds or sags, shorten the arm/leg reach.",
+            difficultyLevel: .easy,
+            easyVariation: "Touch knee to elbow under body instead of full extension.",
+            mediumVariation: "Full extension, 2-second hold.",
+            difficultVariation: "Add a pause or pulse at full extension.",
+            imagePlaceholderName: nil
+        ),
+        ExerciseDetail(
+            exerciseName: "Push-ups (or knee push-ups)",
+            equipment: .bodyweight,
+            summary: "Classic push-up from the floor. Strengthens chest, shoulders, and triceps. Use knees for an easier option.",
+            steps: [
+                "Start in a plank: hands under shoulders, body in a straight line. (Easier: on your knees.)",
+                "Lower your chest toward the floor by bending your elbows. Keep your core tight.",
+                "Push back up to the start. Don't let your hips sag or pike up.",
+                "Repeat for the desired reps.",
+            ],
+            tips: [
+                "Keep your elbows at about 45° from your body, not flared out.",
+                "On knees: keep a straight line from head to knees.",
+            ],
+            muscles: ["Chest", "Triceps", "Shoulders", "Core"],
+            targets: ["Strength"],
+            safetyNote: "If your wrists hurt, try fists or push-up handles. Build up from knee push-ups.",
+            difficultyLevel: .medium,
+            easyVariation: "Knee push-ups, or hands on a raised surface.",
+            mediumVariation: "Full push-ups from toes.",
+            difficultVariation: "Slower tempo, deficit push-ups, or add a hold at the bottom.",
+            imagePlaceholderName: nil
+        ),
+        ExerciseDetail(
+            exerciseName: "Squats",
+            equipment: .bodyweight,
+            summary: "Bodyweight squat. Builds leg and glute strength with no equipment.",
+            steps: [
+                "Stand with feet shoulder-width apart, toes slightly turned out.",
+                "Push your hips back and bend your knees to lower into a squat. Keep your chest up.",
+                "Go as low as you can while keeping your heels down and back straight.",
+                "Drive through your heels to stand back up.",
+            ],
+            tips: [
+                "Push your knees out in line with your toes.",
+                "Keep your weight in your heels; don't let your knees cave in.",
+            ],
+            muscles: ["Quads", "Glutes", "Core"],
+            targets: ["Strength"],
+            safetyNote: "Avoid rounding your lower back. Reduce depth if you feel knee discomfort.",
+            difficultyLevel: .easy,
+            easyVariation: "Squat to a chair and stand back up.",
+            mediumVariation: "Bodyweight squats, full range.",
+            difficultVariation: "Pause at bottom, or add a jump (jump squats).",
+            imagePlaceholderName: nil
+        ),
     ]
+    
+    /// Look up detailed steps, tips, and safety for an exercise by name (exact or partial match).
+    static func detail(forExerciseName name: String) -> ExerciseDetail? {
+        let n = name.trimmingCharacters(in: .whitespaces)
+        if n.isEmpty { return nil }
+        let lower = n.lowercased()
+        return allDetails.first { d in
+            let dLower = d.exerciseName.lowercased()
+            return dLower == lower || dLower.contains(lower) || lower.contains(dLower)
+        }
+    }
 }
 
 extension ExerciseDetail: Hashable {
