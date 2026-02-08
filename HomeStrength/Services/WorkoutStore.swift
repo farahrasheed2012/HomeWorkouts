@@ -87,6 +87,14 @@ class WorkoutStore: ObservableObject {
             Exercise(name: "Bird Dog", equipment: .bodyweight, instructions: "On all fours, extend one arm and opposite leg. Hold 2 sec.", sets: 3, reps: "8 each side"),
             Exercise(name: "Push-ups (or knee push-ups)", equipment: .bodyweight, instructions: "Hands under shoulders, lower and push back up.", sets: 3, reps: "8–10"),
             Exercise(name: "Squats", equipment: .bodyweight, instructions: "Bodyweight squats, chest up.", sets: 3, reps: "12"),
+            // Volleyball / agility
+            Exercise(name: "Skater Jumps", equipment: .bodyweight, instructions: "Jump side to side, landing on one foot. Swing arms for balance.", sets: 3, reps: "8 each", restSeconds: 45),
+            Exercise(name: "Wall Sits", equipment: .bodyweight, instructions: "Back against wall, slide down until knees at 90°. Hold.", sets: 3, reps: "30 sec", restSeconds: 45),
+            Exercise(name: "Lateral Shuffles", equipment: .bodyweight, instructions: "Shuffle side to side low and quick. Stay on balls of feet.", sets: 3, reps: "20 sec", restSeconds: 30),
+            Exercise(name: "Single-Leg Hops", equipment: .bodyweight, instructions: "Hop on one foot forward or in place. Land softly. Switch legs.", sets: 3, reps: "6 each", restSeconds: 45),
+            Exercise(name: "Mountain Climbers", equipment: .bodyweight, instructions: "High plank; drive knees toward chest alternately. Keep hips level.", sets: 3, reps: "20 sec", restSeconds: 30),
+            Exercise(name: "Tricep Dips (chair)", equipment: .bodyweight, instructions: "Hands on chair, lower and push back up. Strengthens triceps for serving.", sets: 3, reps: "8", restSeconds: 45),
+            Exercise(name: "Box Step-Ups (or stairs)", equipment: .bodyweight, instructions: "Step up and down, drive through the standing leg. Builds single-leg power.", sets: 3, reps: "10 each", restSeconds: 45),
         ]
     }
     
@@ -370,6 +378,46 @@ class WorkoutStore: ObservableObject {
                     Exercise(name: "Cool-down Jog in Place", equipment: .bodyweight, instructions: "Easy pace 2 min.", sets: 1, reps: "2 min"),
                 ],
                 estimatedMinutes: 25,
+                profileType: .daughterMiddleSchool
+            ),
+            Workout(
+                name: "Core & Stability for Volleyball",
+                summary: "Core strength and stability for passing, blocking, and injury prevention.",
+                exercises: [
+                    Exercise(name: "Dead Bug", equipment: .bodyweight, instructions: "On back, extend opposite arm and leg. Keep low back pressed down.", sets: 3, reps: "8 each side", restSeconds: 30),
+                    Exercise(name: "Bird Dog", equipment: .bodyweight, instructions: "On all fours, extend one arm and opposite leg. Hold 2 sec.", sets: 3, reps: "8 each side", restSeconds: 30),
+                    Exercise(name: "Plank", equipment: .bodyweight, sets: 3, reps: "25 sec", restSeconds: 30),
+                    Exercise(name: "Superman", equipment: .bodyweight, instructions: "Lie face down, lift arms and legs off the floor. Hold 2 sec.", sets: 3, reps: "10", restSeconds: 30),
+                    Exercise(name: "Glute Bridge", equipment: .bodyweight, instructions: "Feet flat, lift hips. Optional: band above knees.", sets: 3, reps: "12", restSeconds: 30),
+                ],
+                estimatedMinutes: 22,
+                profileType: .daughterMiddleSchool
+            ),
+            Workout(
+                name: "Reaction & Quick Feet",
+                summary: "Explosive lateral movement and reaction time for court coverage.",
+                exercises: [
+                    Exercise(name: "Lateral Shuffles", equipment: .bodyweight, instructions: "Shuffle side to side low and quick.", sets: 3, reps: "25 sec", restSeconds: 30),
+                    Exercise(name: "Skater Jumps", equipment: .bodyweight, instructions: "Jump side to side, land on one foot. Swing arms.", sets: 3, reps: "8 each", restSeconds: 45),
+                    Exercise(name: "High Knees", equipment: .bodyweight, instructions: "Fast feet, drive knees up.", sets: 3, reps: "25 sec", restSeconds: 30),
+                    Exercise(name: "Single-Leg Hops", equipment: .bodyweight, instructions: "Hop on one foot forward or in place. Land softly. Switch legs.", sets: 3, reps: "6 each", restSeconds: 45),
+                    Exercise(name: "Mountain Climbers", equipment: .bodyweight, instructions: "High plank; drive knees toward chest alternately.", sets: 3, reps: "20 sec", restSeconds: 30),
+                    Exercise(name: "Cool-down March", equipment: .bodyweight, instructions: "Easy march in place 2 min.", sets: 1, reps: "2 min"),
+                ],
+                estimatedMinutes: 28,
+                profileType: .daughterMiddleSchool
+            ),
+            Workout(
+                name: "Jump & Block Power",
+                summary: "Vertical jump and leg endurance for blocking and attacking.",
+                exercises: [
+                    Exercise(name: "Wall Sits", equipment: .bodyweight, instructions: "Back against wall, knees at 90°. Hold.", sets: 3, reps: "30 sec", restSeconds: 45),
+                    Exercise(name: "Jump Squats", equipment: .bodyweight, instructions: "Squat then jump up. Land softly.", sets: 3, reps: "8", restSeconds: 45),
+                    Exercise(name: "Box Step-Ups (or stairs)", equipment: .bodyweight, instructions: "Step up and down, drive through standing leg.", sets: 3, reps: "10 each", restSeconds: 45),
+                    Exercise(name: "Calf Raises", equipment: .bodyweight, instructions: "Rise onto toes; control the way down.", sets: 3, reps: "15", restSeconds: 30),
+                    Exercise(name: "Lateral Bounds", equipment: .bodyweight, instructions: "Jump side to side, land on one foot.", sets: 3, reps: "8 each", restSeconds: 45),
+                ],
+                estimatedMinutes: 26,
                 profileType: .daughterMiddleSchool
             ),
         ]
