@@ -150,6 +150,73 @@ class WorkoutStore: ObservableObject {
                 estimatedMinutes: 45,
                 profileType: .mom
             ),
+            Workout(
+                name: "Dumbbells Only",
+                summary: "Full body with just dumbbells. No other equipment needed.",
+                exercises: [
+                    Exercise(name: "Goblet Squat", equipment: .dumbbells, instructions: "Hold one dumbbell at chest. Squat down, keep chest up.", sets: 3, reps: "10"),
+                    Exercise(name: "Dumbbell Row", equipment: .dumbbells, instructions: "Support on bench or chair. Row to hip.", sets: 3, reps: "10 each"),
+                    Exercise(name: "Dumbbell Floor Press", equipment: .dumbbells, instructions: "On back, press dumbbells up from floor.", sets: 3, reps: "10"),
+                    Exercise(name: "Dumbbell Shoulder Press", equipment: .dumbbells, sets: 3, reps: "10"),
+                    Exercise(name: "Dumbbell Romanian Deadlift", equipment: .dumbbells, instructions: "Slight bend in knees, hinge at hips.", sets: 3, reps: "10"),
+                    Exercise(name: "Dumbbell Bicep Curl", equipment: .dumbbells, sets: 3, reps: "10"),
+                    Exercise(name: "Tricep Extension", equipment: .dumbbells, instructions: "One dumbbell overhead or use band.", sets: 3, reps: "10"),
+                ],
+                estimatedMinutes: 35,
+                profileType: .mom
+            ),
+            Workout(
+                name: "Bodyweight Only",
+                summary: "No equipment needed. Strength and core at home.",
+                exercises: [
+                    Exercise(name: "Glute Bridge", equipment: .bodyweight, instructions: "Feet flat, lift hips.", sets: 3, reps: "12"),
+                    Exercise(name: "Plank", equipment: .bodyweight, sets: 3, reps: "30 sec"),
+                    Exercise(name: "Calf Raises", equipment: .bodyweight, sets: 3, reps: "15"),
+                    Exercise(name: "Squats", equipment: .bodyweight, instructions: "Bodyweight squats, chest up.", sets: 3, reps: "12"),
+                    Exercise(name: "Push-ups (or knee push-ups)", equipment: .bodyweight, instructions: "Hands under shoulders, lower and push back up.", sets: 3, reps: "8–10"),
+                ],
+                estimatedMinutes: 25,
+                profileType: .mom
+            ),
+            Workout(
+                name: "Resistance Bands Only",
+                summary: "Full band workout. No dumbbells or other equipment.",
+                exercises: [
+                    Exercise(name: "Band Pull-Apart", equipment: .resistanceBands, instructions: "Hold band in front, pull apart squeezing shoulder blades.", sets: 3, reps: "15"),
+                    Exercise(name: "Band Chest Stretch / Push", equipment: .resistanceBands, sets: 2, reps: "12"),
+                    Exercise(name: "Band Glute Bridge", equipment: .resistanceBands, sets: 3, reps: "12"),
+                ],
+                estimatedMinutes: 20,
+                profileType: .mom
+            ),
+            Workout(
+                name: "Treadmill Session",
+                summary: "Treadmill only. Walk or jog.",
+                exercises: [
+                    Exercise(name: "Treadmill Walk/Jog", equipment: .treadmill, instructions: "5 min warm-up walk, then 15–20 min jog or brisk walk.", sets: 1, reps: "20–25 min"),
+                ],
+                estimatedMinutes: 25,
+                profileType: .mom
+            ),
+            Workout(
+                name: "Exercise Bike Session",
+                summary: "Exercise bike only. Steady or intervals.",
+                exercises: [
+                    Exercise(name: "Exercise Bike", equipment: .exerciseBike, instructions: "Steady pace 15–20 min, or intervals.", sets: 1, reps: "15–20 min"),
+                ],
+                estimatedMinutes: 20,
+                profileType: .mom
+            ),
+            Workout(
+                name: "Home Gym Only",
+                summary: "Machines only. Legs and chest.",
+                exercises: [
+                    Exercise(name: "Leg Press", equipment: .homeGym, instructions: "Feet shoulder-width. Push through heels.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Chest Press", equipment: .homeGym, sets: 3, reps: "10"),
+                ],
+                estimatedMinutes: 25,
+                profileType: .mom
+            ),
         ]
     }
     

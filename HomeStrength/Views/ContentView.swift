@@ -65,7 +65,7 @@ struct ContentView: View {
                                 .font(.subheadline)
                                 .fontWeight(.medium)
                                 .foregroundStyle(.secondary)
-                            Text("Tap to filter workouts by equipment. Leave all unselected to see all.")
+                            Text("Select the equipment you have. Only workouts that use just these will appear. Leave all unselected to see all.")
                                 .font(.caption)
                                 .foregroundStyle(.tertiary)
                             ScrollView(.horizontal, showsIndicators: false) {

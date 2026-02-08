@@ -9,6 +9,8 @@ import SwiftUI
 
 struct UserSelectionView: View {
     @EnvironmentObject var userStore: UserStore
+    /// When set (e.g. when presented as a sheet), called after a profile is selected so the presenter can dismiss.
+    var onProfileSelected: (() -> Void)?
     
     var body: some View {
         VStack(spacing: 24) {
@@ -21,6 +23,7 @@ struct UserSelectionView: View {
                 ForEach(UserStore.availableProfiles) { profile in
                     Button {
                         userStore.selectUser(profile)
+                        onProfileSelected?()
                     } label: {
                         HStack(spacing: 16) {
                             Image(systemName: profile.profileType.icon)

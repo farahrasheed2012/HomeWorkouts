@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @EnvironmentObject var userStore: UserStore
+    @State private var showProfilePicker = false
     
     private var isGroupFitness: Bool { userStore.currentUser?.profileType.isGroupFitness == true }
     
@@ -24,14 +25,23 @@ struct MainTabView: View {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button {
+                        showProfilePicker = true
+                    } label: {
+                        Label("Switch profile", systemImage: "person.2")
+                    }
+                    Button(role: .destructive) {
                         userStore.signOut()
                     } label: {
-                        Label("Switch user", systemImage: "person.2")
+                        Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
                     }
                 } label: {
-                    Label("User", systemImage: "person.circle")
+                    Label(userStore.currentUser?.displayName ?? "Profile", systemImage: "person.circle")
                 }
             }
+        }
+        .sheet(isPresented: $showProfilePicker) {
+            UserSelectionView(onProfileSelected: { showProfilePicker = false })
+                .environmentObject(userStore)
         }
     }
     

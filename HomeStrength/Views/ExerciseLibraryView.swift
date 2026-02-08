@@ -53,16 +53,29 @@ struct ExerciseDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Placeholder for image/GIF
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.orange.opacity(0.15))
-                        .frame(height: 180)
-                    Image(systemName: "figure.strengthtraining.traditional")
-                        .font(.system(size: 60))
-                        .foregroundStyle(.orange.opacity(0.6))
+                // Exercise demo image (from Assets when available)
+                Group {
+                    if let name = detail.imagePlaceholderName, !name.isEmpty {
+                        Image(name)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 220)
+                            .clipped()
+                    } else {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.orange.opacity(0.15))
+                                .frame(height: 180)
+                            Image(systemName: "figure.strengthtraining.traditional")
+                                .font(.system(size: 60))
+                                .foregroundStyle(.orange.opacity(0.6))
+                        }
+                        .overlay(Text("Demo image").font(.caption).foregroundStyle(.secondary).padding(8), alignment: .topLeading)
+                    }
                 }
-                .overlay(Text("Demo image / GIF").font(.caption).foregroundStyle(.secondary).padding(8), alignment: .topLeading)
+                .frame(maxWidth: .infinity)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
                 
                 Text(detail.difficultyLevel.rawValue)
                     .font(.caption)
@@ -195,7 +208,8 @@ enum ExerciseDetailStore {
             difficultyLevel: .easy,
             easyVariation: "Use a lighter dumbbell or no weight. Sit to a chair and stand back up if needed.",
             mediumVariation: "Bodyweight or light dumbbell, full range.",
-            difficultVariation: "Heavier dumbbell, pause at bottom, or add a pulse."
+            difficultVariation: "Heavier dumbbell, pause at bottom, or add a pulse.",
+            imagePlaceholderName: "GobletSquat"
         ),
         ExerciseDetail(
             exerciseName: "Jump Squats",
@@ -216,7 +230,8 @@ enum ExerciseDetailStore {
             difficultyLevel: .medium,
             easyVariation: "Do regular squats first, or small hops instead of full jumps.",
             mediumVariation: "Jump squats with full recovery between reps.",
-            difficultVariation: "Minimal rest, add tuck or height focus."
+            difficultVariation: "Minimal rest, add tuck or height focus.",
+            imagePlaceholderName: "JumpSquats"
         ),
         ExerciseDetail(
             exerciseName: "Band Pull-Apart",
@@ -237,7 +252,8 @@ enum ExerciseDetailStore {
             difficultyLevel: .easy,
             easyVariation: "Use a lighter band or shorten the band for less resistance.",
             mediumVariation: "Standard band, full range.",
-            difficultVariation: "Heavy band or add pause at peak contraction."
+            difficultVariation: "Heavy band or add pause at peak contraction.",
+            imagePlaceholderName: "BandPullApart"
         ),
         ExerciseDetail(
             exerciseName: "Dumbbell Row",
@@ -258,7 +274,8 @@ enum ExerciseDetailStore {
             difficultyLevel: .medium,
             easyVariation: "Use a light weight. Support your hand on your knee if no bench.",
             mediumVariation: "Moderate weight, full range.",
-            difficultVariation: "Renegade row or single-arm row with pause."
+            difficultVariation: "Renegade row or single-arm row with pause.",
+            imagePlaceholderName: "DumbbellRow"
         ),
         ExerciseDetail(
             exerciseName: "Plank",
@@ -279,7 +296,8 @@ enum ExerciseDetailStore {
             difficultyLevel: .medium,
             easyVariation: "Hold from your knees instead of toes, or hold for 10–15 seconds at a time.",
             mediumVariation: "Standard forearm or high plank 30–45 sec.",
-            difficultVariation: "Extended hold, shoulder taps, or alternating leg lift."
+            difficultVariation: "Extended hold, shoulder taps, or alternating leg lift.",
+            imagePlaceholderName: "Plank"
         ),
         // Kid-friendly activities with fun descriptions
         ExerciseDetail(
@@ -299,6 +317,7 @@ enum ExerciseDetailStore {
             easyVariation: "Small hops in place.",
             mediumVariation: "Frog jumps forward.",
             difficultVariation: "Frog jumps with a clap at the top.",
+            imagePlaceholderName: "FrogJumps",
             isKidFriendly: true
         ),
         ExerciseDetail(
@@ -318,6 +337,7 @@ enum ExerciseDetailStore {
             easyVariation: "Crawl on knees (bear-style).",
             mediumVariation: "Full bear crawl.",
             difficultVariation: "Bear crawl backward or with a pause.",
+            imagePlaceholderName: "BearCrawl",
             isKidFriendly: true
         ),
         ExerciseDetail(
@@ -337,7 +357,322 @@ enum ExerciseDetailStore {
             easyVariation: "Hop in place only.",
             mediumVariation: "Hop forward or in a circle.",
             difficultVariation: "Fast bunny hops or hop on one foot.",
+            imagePlaceholderName: "BunnyHops",
             isKidFriendly: true
+        ),
+        // Additional library exercises (full steps and variations)
+        ExerciseDetail(
+            exerciseName: "Dumbbell Floor Press",
+            equipment: .dumbbells,
+            summary: "Chest press lying on the floor. Builds chest and triceps with a safe range of motion.",
+            steps: [
+                "Lie on your back on the floor, knees bent, feet flat. Hold a dumbbell in each hand.",
+                "Start with elbows bent about 45° from your body, weights at chest level.",
+                "Press the dumbbells up until your arms are straight. Don't lock elbows.",
+                "Lower with control back to the start position.",
+            ],
+            tips: [
+                "Keep your lower back on the floor to protect your spine.",
+                "Squeeze your chest at the top of the press.",
+            ],
+            muscles: ["Chest", "Triceps", "Shoulders"],
+            targets: ["Strength"],
+            safetyNote: "If you have shoulder issues, reduce range or use lighter weight.",
+            difficultyLevel: .easy,
+            easyVariation: "Use light weights or one arm at a time.",
+            mediumVariation: "Moderate weight, full range.",
+            difficultVariation: "Heavier weight, or add a pause at the bottom.",
+            imagePlaceholderName: "DumbbellFloorPress"
+        ),
+        ExerciseDetail(
+            exerciseName: "Dumbbell Shoulder Press",
+            equipment: .dumbbells,
+            summary: "Press dumbbells overhead from shoulders. Strengthens shoulders and arms.",
+            steps: [
+                "Sit or stand with feet shoulder-width apart. Hold a dumbbell in each hand at shoulder height, palms forward.",
+                "Press both dumbbells straight up until your arms are extended (don't lock elbows).",
+                "Lower with control back to shoulder height.",
+            ],
+            tips: [
+                "Keep your core tight to avoid arching your lower back.",
+                "Don't let your elbows flare too far out—keep them slightly in front of your body.",
+            ],
+            muscles: ["Shoulders", "Triceps", "Upper chest"],
+            targets: ["Strength"],
+            safetyNote: "If standing, keep a slight bend in the knees. Avoid pressing behind the head.",
+            difficultyLevel: .medium,
+            easyVariation: "Seated with back support; light weights.",
+            mediumVariation: "Standing or seated, moderate weight.",
+            difficultVariation: "Alternating arms or single-arm press.",
+            imagePlaceholderName: "DumbbellShoulderPress"
+        ),
+        ExerciseDetail(
+            exerciseName: "Dumbbell Romanian Deadlift",
+            equipment: .dumbbells,
+            summary: "Hinge at the hips while holding dumbbells. Great for hamstrings and lower back.",
+            steps: [
+                "Stand with feet hip-width apart, soft bend in knees. Hold dumbbells in front of your thighs.",
+                "Push your hips back and lower the dumbbells along your legs. Keep your back flat.",
+                "Lower until you feel a stretch in your hamstrings (usually to mid-shin or just below knee).",
+                "Drive through your heels and squeeze your glutes to stand back up.",
+            ],
+            tips: [
+                "Think of closing a car door with your hips—push back, don't squat down.",
+                "Keep the dumbbells close to your body throughout.",
+            ],
+            muscles: ["Hamstrings", "Glutes", "Lower back"],
+            targets: ["Strength", "Flexibility"],
+            safetyNote: "Never round your lower back. Stop if you feel back strain.",
+            difficultyLevel: .medium,
+            easyVariation: "Bodyweight or very light dumbbells; shorter range.",
+            mediumVariation: "Moderate weight, full range.",
+            difficultVariation: "Single-leg RDL or heavier weight with pause.",
+            imagePlaceholderName: "DumbbellRomanianDeadlift"
+        ),
+        ExerciseDetail(
+            exerciseName: "Dumbbell Bicep Curl",
+            equipment: .dumbbells,
+            summary: "Curl dumbbells to work your biceps. Simple and effective arm exercise.",
+            steps: [
+                "Stand or sit with a dumbbell in each hand, arms at your sides, palms forward.",
+                "Keeping your upper arms still, bend your elbows and curl the weights toward your shoulders.",
+                "Squeeze your biceps at the top, then lower with control.",
+            ],
+            tips: [
+                "Don't swing the weights—use a controlled motion.",
+                "Keep your elbows close to your body.",
+            ],
+            muscles: ["Biceps", "Forearms"],
+            targets: ["Strength"],
+            safetyNote: "Use a weight you can control; avoid straining your wrists.",
+            difficultyLevel: .easy,
+            easyVariation: "Lighter weight or alternate arms.",
+            mediumVariation: "Both arms together, moderate weight.",
+            difficultVariation: "Hammer curls or concentration curls.",
+            imagePlaceholderName: "DumbbellBicepCurl"
+        ),
+        ExerciseDetail(
+            exerciseName: "Tricep Extension",
+            equipment: .dumbbells,
+            summary: "Extend your arms to target the triceps. Can be done with one or two dumbbells overhead or with a band.",
+            steps: [
+                "Stand or sit. Hold one dumbbell with both hands (or one in each hand) behind your head, elbows pointing up.",
+                "Keeping your upper arms still, straighten your elbows to lift the weight.",
+                "Lower with control back to the start position.",
+            ],
+            tips: [
+                "Keep your elbows pointing forward and close to your head.",
+                "Don't let your lower back arch—engage your core.",
+            ],
+            muscles: ["Triceps"],
+            targets: ["Strength"],
+            safetyNote: "Start with a light weight to avoid elbow strain.",
+            difficultyLevel: .medium,
+            easyVariation: "Use a resistance band or very light dumbbell.",
+            mediumVariation: "Single dumbbell or two light dumbbells.",
+            difficultVariation: "Lying tricep extension or heavier weight.",
+            imagePlaceholderName: "TricepExtension"
+        ),
+        ExerciseDetail(
+            exerciseName: "Dumbbell Lunge",
+            equipment: .dumbbells,
+            summary: "Step forward or backward into a lunge while holding dumbbells. Builds leg strength and balance.",
+            steps: [
+                "Stand with feet hip-width apart, a dumbbell in each hand at your sides.",
+                "Step one foot forward and lower your back knee toward the floor. Both knees should bend to about 90°.",
+                "Keep your front knee over your ankle; don't let it cave inward.",
+                "Push through your front heel to return to standing. Alternate legs or complete all reps on one side first.",
+            ],
+            tips: [
+                "Keep your torso upright; don't lean forward.",
+                "Take a long enough step so your front knee doesn't go past your toes.",
+            ],
+            muscles: ["Quads", "Glutes", "Hamstrings"],
+            targets: ["Strength", "Balance"],
+            safetyNote: "Use a clear space. If balance is an issue, hold onto a wall or use bodyweight only.",
+            difficultyLevel: .medium,
+            easyVariation: "Bodyweight only or light dumbbells.",
+            mediumVariation: "Moderate weight, alternating or walking lunges.",
+            difficultVariation: "Reverse lunges, walking lunges, or heavier weight.",
+            imagePlaceholderName: "DumbbellLunge"
+        ),
+        ExerciseDetail(
+            exerciseName: "Band Chest Stretch / Push",
+            equipment: .resistanceBands,
+            summary: "Press or stretch a resistance band at chest height. Works chest and shoulders.",
+            steps: [
+                "Hold the band in both hands in front of your chest, arms slightly bent. Stand on the band or anchor it behind you.",
+                "Push your hands forward (or apart) against the band until your arms are extended.",
+                "Squeeze your chest, then return with control.",
+            ],
+            tips: [
+                "Keep your core tight and don't arch your back.",
+                "Control the return—don't let the band snap back.",
+            ],
+            muscles: ["Chest", "Shoulders", "Triceps"],
+            targets: ["Strength"],
+            safetyNote: "Check that the band is secure. Use a band with appropriate resistance.",
+            difficultyLevel: .easy,
+            easyVariation: "Lighter band or shorter range.",
+            mediumVariation: "Standard band, full push.",
+            difficultVariation: "Heavier band or add a pause at full extension.",
+            imagePlaceholderName: "BandChestStretch"
+        ),
+        ExerciseDetail(
+            exerciseName: "Band Glute Bridge",
+            equipment: .resistanceBands,
+            summary: "Bridge your hips up with a band around your legs to add resistance. Targets glutes and hamstrings.",
+            steps: [
+                "Lie on your back, knees bent, feet flat. Place a resistance band just above your knees.",
+                "Push your knees out slightly against the band. Drive through your heels and lift your hips toward the ceiling.",
+                "Squeeze your glutes at the top. Lower with control.",
+            ],
+            tips: [
+                "Don't over-arch your lower back—focus on squeezing your glutes.",
+                "Keep the band taut by pushing your knees out.",
+            ],
+            muscles: ["Glutes", "Hamstrings", "Core"],
+            targets: ["Strength"],
+            safetyNote: "If you feel back pain, reduce the range or remove the band.",
+            difficultyLevel: .easy,
+            easyVariation: "Bodyweight bridge first; add band when comfortable.",
+            mediumVariation: "Band above knees, full range.",
+            difficultVariation: "Single-leg bridge with band or hold at top.",
+            imagePlaceholderName: "BandGluteBridge"
+        ),
+        ExerciseDetail(
+            exerciseName: "Leg Press",
+            equipment: .homeGym,
+            summary: "Push the weight platform with your feet. Builds quads and glutes with machine support.",
+            steps: [
+                "Sit in the leg press with your back flat against the pad. Place your feet shoulder-width apart on the platform.",
+                "Release the safety and bend your knees to lower the platform. Don't let your lower back round.",
+                "Lower until your knees are at about 90°, then push through your heels to extend your legs.",
+                "Don't lock your knees at the top.",
+            ],
+            tips: [
+                "Push through your whole foot; avoid letting your heels rise.",
+                "Keep your knees in line with your toes.",
+            ],
+            muscles: ["Quads", "Glutes", "Hamstrings"],
+            targets: ["Strength"],
+            safetyNote: "Use a weight you can control. Never lock knees under heavy load.",
+            difficultyLevel: .medium,
+            easyVariation: "Light weight, shorter range.",
+            mediumVariation: "Moderate weight, full range.",
+            difficultVariation: "Single-leg press or heavier weight.",
+            imagePlaceholderName: "LegPress"
+        ),
+        ExerciseDetail(
+            exerciseName: "Chest Press",
+            equipment: .homeGym,
+            summary: "Press the handles or bar away from your chest on a machine. Builds chest and triceps.",
+            steps: [
+                "Sit with your back flat. Grip the handles or bar at chest height.",
+                "Push the weight forward until your arms are extended. Don't lock elbows.",
+                "Return with control to the start position.",
+            ],
+            tips: [
+                "Squeeze your chest at full extension.",
+                "Keep your shoulder blades slightly pinched together.",
+            ],
+            muscles: ["Chest", "Triceps", "Shoulders"],
+            targets: ["Strength"],
+            safetyNote: "Set the seat so the handles are at mid-chest. Use a weight you can control.",
+            difficultyLevel: .medium,
+            easyVariation: "Light weight, full control.",
+            mediumVariation: "Moderate weight, full range.",
+            difficultVariation: "Heavier weight or slow negative.",
+            imagePlaceholderName: "ChestPress"
+        ),
+        ExerciseDetail(
+            exerciseName: "Glute Bridge",
+            equipment: .bodyweight,
+            summary: "Lift your hips off the floor from your back. Strengthens glutes and core. Optional: add a band above knees.",
+            steps: [
+                "Lie on your back, knees bent, feet flat on the floor about hip-width apart.",
+                "Drive through your heels and lift your hips until your body forms a straight line from shoulders to knees.",
+                "Squeeze your glutes at the top. Hold briefly, then lower with control.",
+            ],
+            tips: [
+                "Keep your chin slightly tucked; don't strain your neck.",
+                "Push your knees out slightly to engage glutes more (optional band).",
+            ],
+            muscles: ["Glutes", "Hamstrings", "Core"],
+            targets: ["Strength"],
+            safetyNote: "If your lower back feels strained, reduce the height of the lift.",
+            difficultyLevel: .easy,
+            easyVariation: "Short hold at top; march feet in for less range.",
+            mediumVariation: "Full bridge, 2-second hold at top.",
+            difficultVariation: "Single-leg bridge or band above knees.",
+            imagePlaceholderName: "GluteBridge"
+        ),
+        ExerciseDetail(
+            exerciseName: "Calf Raises",
+            equipment: .bodyweight,
+            summary: "Rise onto your toes to work your calves. Can be done on the floor or on a step for more range.",
+            steps: [
+                "Stand with feet hip-width apart. You can hold a wall or chair for balance.",
+                "Rise onto the balls of your feet, lifting your heels as high as you can.",
+                "Hold briefly at the top, then lower with control.",
+            ],
+            tips: [
+                "Keep your knees slightly bent if needed; focus on the calf squeeze.",
+                "For more range, stand on a step and let your heels drop below the step.",
+            ],
+            muscles: ["Calves"],
+            targets: ["Strength", "Balance"],
+            safetyNote: "Hold something for balance if needed. Don't bounce at the bottom.",
+            difficultyLevel: .easy,
+            easyVariation: "Both feet, holding support.",
+            mediumVariation: "Both feet, no support, or on a step.",
+            difficultVariation: "Single-leg calf raises or weighted.",
+            imagePlaceholderName: "CalfRaises"
+        ),
+        ExerciseDetail(
+            exerciseName: "Treadmill Walk/Jog",
+            equipment: .treadmill,
+            summary: "Walk or jog on the treadmill. Warm up with a walk, then increase pace as comfortable.",
+            steps: [
+                "Start with a 5-minute walk at an easy pace to warm up.",
+                "Gradually increase speed to a brisk walk or light jog. Stay at a pace where you can talk in short sentences.",
+                "Continue for 15–25 minutes. Cool down with 3–5 minutes of slower walking.",
+            ],
+            tips: [
+                "Use a slight incline (1–2%) to mimic outdoor walking.",
+                "Stay hydrated and use the handrails only for balance if needed.",
+            ],
+            muscles: ["Legs", "Cardiovascular"],
+            targets: ["Cardio", "Endurance"],
+            safetyNote: "Know how to use the emergency stop. Start at low speed.",
+            difficultyLevel: .easy,
+            easyVariation: "Walking only, flat, 15–20 min.",
+            mediumVariation: "Walk/jog intervals or steady jog.",
+            difficultVariation: "Hill intervals or longer duration.",
+            imagePlaceholderName: "TreadmillWalkJog"
+        ),
+        ExerciseDetail(
+            exerciseName: "Exercise Bike",
+            equipment: .exerciseBike,
+            summary: "Cycle on a stationary bike. Low-impact cardio for heart health and leg endurance.",
+            steps: [
+                "Adjust the seat so your knee is slightly bent at the bottom of the pedal stroke.",
+                "Start pedaling at an easy pace for 3–5 minutes to warm up.",
+                "Increase resistance or speed as desired. Maintain a steady rhythm for 15–20 minutes.",
+                "Cool down with 3–5 minutes of easy pedaling.",
+            ],
+            tips: [
+                "Keep your core engaged; don't slump.",
+                "Vary resistance and cadence for interval options.",
+            ],
+            muscles: ["Quads", "Calves", "Cardiovascular"],
+            targets: ["Cardio", "Endurance"],
+            safetyNote: "Ensure the bike is set up correctly. Stop if you feel knee or back pain.",
+            difficultyLevel: .easy,
+            easyVariation: "Light resistance, 15 min.",
+            mediumVariation: "Moderate resistance, 20 min or intervals.",
+            difficultVariation: "HIIT intervals or longer steady ride.",
+            imagePlaceholderName: "ExerciseBike"
         ),
     ]
 }

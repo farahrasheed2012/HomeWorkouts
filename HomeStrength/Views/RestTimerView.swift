@@ -104,6 +104,15 @@ struct RestTimerView: View {
             }
         }
         .padding(32)
+        .onChange(of: state.remaining) { newValue in
+            if newValue == 0 {
+                // Auto-dismiss shortly after rest ends so the workout can advance without tapping Done
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    state.stop()
+                    onDismiss()
+                }
+            }
+        }
         .onDisappear {
             state.stop()
         }
