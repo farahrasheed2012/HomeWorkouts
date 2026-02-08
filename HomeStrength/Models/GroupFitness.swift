@@ -104,6 +104,80 @@ struct GroupFitnessRoutine: Identifiable, Codable, Hashable {
     }
 }
 
+/// Scaled view of a section for a target class duration (proportional scaling of times).
+struct ScaledSectionView: Identifiable {
+    let id: UUID
+    let name: String
+    let durationMinutes: Int
+    let exercises: [ScaledExerciseView]
+    let bpmSuggested: Int?
+    let instructorCues: [String]
+}
+
+/// Scaled work/rest for one exercise when routine is run at a different duration.
+struct ScaledExerciseView: Identifiable {
+    let id: UUID
+    let name: String
+    let workSeconds: Int
+    let restSeconds: Int
+    let lowKeyOption: String
+    let intermediateOption: String
+    let proOption: String
+    let postpartumSafe: Bool
+    let formNotes: String?
+    let motivationalCues: [String]
+}
+
+extension GroupFitnessRoutine {
+    /// Scale section durations and exercise work/rest to target total minutes.
+    /// Uses proportional scaling; rounds section mins and exercise secs to sensible values.
+    func scaled(toTargetMinutes target: Int) -> (warmUp: ScaledSectionView, mainSections: [ScaledSectionView], coolDown: ScaledSectionView, displayMinutes: Int) {
+        let base = estimatedMinutes
+        let scale = base > 0 ? Double(target) / Double(base) : 1.0
+        
+        func roundMinutes(_ d: Double) -> Int {
+            max(1, Int(d.rounded()))
+        }
+        func roundSeconds(_ d: Double) -> Int {
+            let s = Int(d.rounded())
+            if s <= 0 { return 5 }
+            if s <= 10 { return max(5, (s / 5) * 5) }
+            return (s / 5) * 5
+        }
+        
+        func scaleSection(_ s: GroupFitnessSection) -> ScaledSectionView {
+            ScaledSectionView(
+                id: s.id,
+                name: s.name,
+                durationMinutes: roundMinutes(Double(s.durationMinutes) * scale),
+                exercises: s.exercises.map { ex in
+                    ScaledExerciseView(
+                        id: ex.id,
+                        name: ex.name,
+                        workSeconds: roundSeconds(Double(ex.durationSeconds) * scale),
+                        restSeconds: roundSeconds(Double(ex.restSeconds) * scale),
+                        lowKeyOption: ex.lowKeyOption,
+                        intermediateOption: ex.intermediateOption,
+                        proOption: ex.proOption,
+                        postpartumSafe: ex.postpartumSafe,
+                        formNotes: ex.formNotes,
+                        motivationalCues: ex.motivationalCues
+                    )
+                },
+                bpmSuggested: s.bpmSuggested,
+                instructorCues: s.instructorCues
+            )
+        }
+        
+        return (
+            warmUp: scaleSection(warmUp),
+            mainSections: mainSections.map(scaleSection),
+            coolDown: scaleSection(coolDown),
+            displayMinutes: target
+        )
+    }
+}
+
 /// Log of a class you led (for tracking and feedback).
 struct GroupClassLog: Identifiable, Codable {
     var id: UUID

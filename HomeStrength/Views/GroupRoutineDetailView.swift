@@ -21,16 +21,21 @@ struct GroupRoutineDetailView: View {
         groupFitnessStore.allRoutines.first { $0.id == routine.id } ?? routine
     }
     
+    /// Routine scaled to the currently selected class duration (section mins and exercise work/rest adapt).
+    private var scaledRoutine: (warmUp: ScaledSectionView, mainSections: [ScaledSectionView], coolDown: ScaledSectionView, displayMinutes: Int) {
+        currentRoutine.scaled(toTargetMinutes: selectedSessionMinutes)
+    }
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 overviewCard
                 classDurationCard
-                sectionCard("Warm-up", section: currentRoutine.warmUp)
-                ForEach(currentRoutine.mainSections) { section in
+                sectionCard("Warm-up", section: scaledRoutine.warmUp)
+                ForEach(scaledRoutine.mainSections) { section in
                     sectionCard(section.name, section: section)
                 }
-                sectionCard("Cool-down", section: currentRoutine.coolDown)
+                sectionCard("Cool-down", section: scaledRoutine.coolDown)
                 spaceAndNotesCard
                 scalingCard
             }
@@ -147,11 +152,13 @@ struct GroupRoutineDetailView: View {
     }
     
     private var overviewCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let scaled = scaledRoutine
+        let isScaled = selectedSessionMinutes != currentRoutine.estimatedMinutes
+        return VStack(alignment: .leading, spacing: 8) {
             Label(currentRoutine.format.rawValue, systemImage: currentRoutine.format.icon)
                 .font(.subheadline)
                 .foregroundStyle(.teal)
-            Text("\(currentRoutine.estimatedMinutes) min · Bodyweight only · Mixed levels")
+            Text(isScaled ? "\(scaled.displayMinutes) min class (scaled from \(currentRoutine.estimatedMinutes) min) · Bodyweight only · Mixed levels" : "\(scaled.displayMinutes) min · Bodyweight only · Mixed levels")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             if let notes = currentRoutine.generalNotes, !notes.isEmpty {
@@ -166,7 +173,7 @@ struct GroupRoutineDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
-    private func sectionCard(_ title: String, section: GroupFitnessSection) -> some View {
+    private func sectionCard(_ title: String, section: ScaledSectionView) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(title)
@@ -194,7 +201,7 @@ struct GroupRoutineDetailView: View {
                 }
             }
             ForEach(section.exercises) { ex in
-                exerciseRow(ex)
+                scaledExerciseRow(ex)
             }
         }
         .padding()
@@ -202,14 +209,14 @@ struct GroupRoutineDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
-    private func exerciseRow(_ ex: GroupFitnessExercise) -> some View {
+    private func scaledExerciseRow(_ ex: ScaledExerciseView) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(ex.name)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                 Spacer()
-                Text("\(ex.durationSeconds)s work · \(ex.restSeconds)s rest")
+                Text("\(ex.workSeconds)s work · \(ex.restSeconds)s rest")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
