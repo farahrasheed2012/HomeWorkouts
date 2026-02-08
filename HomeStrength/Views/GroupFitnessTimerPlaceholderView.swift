@@ -12,7 +12,10 @@ struct GroupFitnessTimerPlaceholderView: View {
     @EnvironmentObject var userStore: UserStore
     @State private var showRoutinePicker = false
     @State private var showProfilePicker = false
+    @State private var showDurationSheet = false
     @State private var routineForTimer: GroupFitnessRoutine?
+    @State private var pendingRoutine: GroupFitnessRoutine?
+    @State private var selectedSessionMinutes: Int = 30
     @State private var routineToLog: GroupFitnessRoutine?
     
     var body: some View {
@@ -67,13 +70,33 @@ struct GroupFitnessTimerPlaceholderView: View {
             .sheet(isPresented: $showRoutinePicker) {
                 GroupFitnessRoutinePickerView(onPick: { routine in
                     showRoutinePicker = false
-                    routineForTimer = routine
+                    pendingRoutine = routine
+                    selectedSessionMinutes = closestClassDuration(to: routine.estimatedMinutes)
+                    showDurationSheet = true
                 })
                 .environmentObject(groupFitnessStore)
+            }
+            .sheet(isPresented: $showDurationSheet) {
+                if let routine = pendingRoutine {
+                    GroupClassDurationSheet(
+                        routineName: routine.name,
+                        defaultMinutes: routine.estimatedMinutes,
+                        selectedMinutes: $selectedSessionMinutes,
+                        onStart: {
+                            routineForTimer = routine
+                            showDurationSheet = false
+                        },
+                        onCancel: {
+                            pendingRoutine = nil
+                            showDurationSheet = false
+                        }
+                    )
+                }
             }
             .fullScreenCover(item: $routineForTimer) { routine in
                 ClassTimerView(
                     routine: routine,
+                    sessionMinutes: selectedSessionMinutes,
                     onDismiss: { routineForTimer = nil },
                     onClassComplete: {
                         routineToLog = routine
@@ -92,6 +115,10 @@ struct GroupFitnessTimerPlaceholderView: View {
             }
         }
     }
+}
+
+private func closestClassDuration(to minutes: Int) -> Int {
+    GroupClassDuration.allCases.min(by: { abs($0.minutes - minutes) < abs($1.minutes - minutes) })?.minutes ?? 30
 }
 
 /// Simple list to pick a routine and start its timer (used from Lead Class tab).

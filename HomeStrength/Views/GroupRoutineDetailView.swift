@@ -12,6 +12,8 @@ struct GroupRoutineDetailView: View {
     @EnvironmentObject var userStore: UserStore
     let routine: GroupFitnessRoutine
     @State private var showTimer = false
+    @State private var showDurationSheet = false
+    @State private var selectedSessionMinutes: Int = 30
     @State private var showLogSheet = false
     @State private var showProfilePicker = false
     
@@ -55,7 +57,8 @@ struct GroupRoutineDetailView: View {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button {
-                        showTimer = true
+                        selectedSessionMinutes = closestClassDuration(to: currentRoutine.estimatedMinutes)
+                        showDurationSheet = true
                     } label: {
                         Label("Start class timer", systemImage: "timer")
                     }
@@ -78,9 +81,22 @@ struct GroupRoutineDetailView: View {
             UserSelectionView(onProfileSelected: { showProfilePicker = false })
                 .environmentObject(userStore)
         }
+        .sheet(isPresented: $showDurationSheet) {
+            GroupClassDurationSheet(
+                routineName: currentRoutine.name,
+                defaultMinutes: currentRoutine.estimatedMinutes,
+                selectedMinutes: $selectedSessionMinutes,
+                onStart: {
+                    showDurationSheet = false
+                    showTimer = true
+                },
+                onCancel: { showDurationSheet = false }
+            )
+        }
         .fullScreenCover(isPresented: $showTimer) {
             ClassTimerView(
                 routine: currentRoutine,
+                sessionMinutes: selectedSessionMinutes,
                 onDismiss: { showTimer = false },
                 onClassComplete: {
                     showTimer = false
@@ -97,6 +113,11 @@ struct GroupRoutineDetailView: View {
                 )
             }
         }
+    }
+    
+    private func closestClassDuration(to minutes: Int) -> Int {
+        let options = GroupClassDuration.allCases.map(\.minutes)
+        return options.min(by: { abs($0 - minutes) < abs($1 - minutes) }) ?? 30
     }
     
     private var overviewCard: some View {

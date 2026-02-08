@@ -64,17 +64,86 @@ final class ClassTimerState: ObservableObject {
     }
 }
 
+/// Duration options for group fitness class timer (minutes).
+enum GroupClassDuration: Int, CaseIterable, Identifiable {
+    case min15 = 15
+    case min20 = 20
+    case min25 = 25
+    case min30 = 30
+    case min35 = 35
+    case min40 = 40
+    case min45 = 45
+    case min60 = 60
+    var minutes: Int { rawValue }
+    var label: String { "\(rawValue) min" }
+    var id: Int { rawValue }
+}
+
+struct GroupClassDurationSheet: View {
+    let routineName: String
+    let defaultMinutes: Int
+    @Binding var selectedMinutes: Int
+    let onStart: () -> Void
+    let onCancel: () -> Void
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Text("Set how long this class will run. The timer will count down from this duration.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Section("Class duration") {
+                    Picker("Length", selection: $selectedMinutes) {
+                        ForEach(GroupClassDuration.allCases) { d in
+                            Text(d.label).tag(d.minutes)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+                Section {
+                    Button {
+                        onStart()
+                    } label: {
+                        Label("Start timer", systemImage: "play.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.teal)
+                }
+            }
+            .navigationTitle("Set duration")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { onCancel() }
+                }
+            }
+        }
+        .onAppear {
+            if !GroupClassDuration.allCases.map(\.minutes).contains(selectedMinutes) {
+                selectedMinutes = GroupClassDuration.allCases.min(by: { abs($0.minutes - defaultMinutes) < abs($1.minutes - defaultMinutes) })?.minutes ?? 30
+            }
+        }
+    }
+}
+
 struct ClassTimerView: View {
     let routine: GroupFitnessRoutine
+    /// Override duration for this session (defaults to routine.estimatedMinutes when nil).
+    let sessionMinutes: Int?
     let onDismiss: () -> Void
     let onClassComplete: () -> Void
     @StateObject private var state: ClassTimerState
     
-    init(routine: GroupFitnessRoutine, onDismiss: @escaping () -> Void, onClassComplete: @escaping () -> Void) {
+    init(routine: GroupFitnessRoutine, sessionMinutes: Int? = nil, onDismiss: @escaping () -> Void, onClassComplete: @escaping () -> Void) {
         self.routine = routine
+        self.sessionMinutes = sessionMinutes
         self.onDismiss = onDismiss
         self.onClassComplete = onClassComplete
-        _state = StateObject(wrappedValue: ClassTimerState(totalMinutes: routine.estimatedMinutes))
+        let total = sessionMinutes ?? routine.estimatedMinutes
+        _state = StateObject(wrappedValue: ClassTimerState(totalMinutes: total))
     }
     
     var body: some View {

@@ -80,6 +80,14 @@ struct RandomWorkoutGeneratorView: View {
                     .tint(.purple)
                 }
             } else {
+                Section("Duration") {
+                    Picker("How long do you have?", selection: $duration) {
+                        ForEach(GeneratorDuration.allCases) { d in
+                            Text(d.label).tag(d)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
                 Section("Equipment") {
                     Text("Choose what you have. Leave all unselected for any.")
                         .font(.caption)
@@ -104,13 +112,6 @@ struct RandomWorkoutGeneratorView: View {
                                 .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
-                        }
-                    }
-                }
-                Section("Duration") {
-                    Picker("Length", selection: $duration) {
-                        ForEach(GeneratorDuration.allCases) { d in
-                            Text(d.label).tag(d)
                         }
                     }
                 }

@@ -8,10 +8,14 @@
 import Foundation
 
 enum GeneratorDuration: Int, CaseIterable, Identifiable {
+    case min10 = 10
     case min15 = 15
     case min20 = 20
+    case min25 = 25
     case min30 = 30
+    case min40 = 40
     case min45 = 45
+    case min60 = 60
     var minutes: Int { rawValue }
     var label: String { "\(rawValue) min" }
     var id: Int { rawValue }
