@@ -25,6 +25,7 @@ struct GroupRoutineDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 overviewCard
+                classDurationCard
                 sectionCard("Warm-up", section: currentRoutine.warmUp)
                 ForEach(currentRoutine.mainSections) { section in
                     sectionCard(section.name, section: section)
@@ -57,7 +58,6 @@ struct GroupRoutineDetailView: View {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button {
-                        selectedSessionMinutes = closestClassDuration(to: currentRoutine.estimatedMinutes)
                         showDurationSheet = true
                     } label: {
                         Label("Start class timer", systemImage: "timer")
@@ -113,11 +113,37 @@ struct GroupRoutineDetailView: View {
                 )
             }
         }
+        .onAppear {
+            selectedSessionMinutes = closestClassDuration(to: currentRoutine.estimatedMinutes)
+        }
+        .onChange(of: currentRoutine.id) { _ in
+            selectedSessionMinutes = closestClassDuration(to: currentRoutine.estimatedMinutes)
+        }
     }
     
     private func closestClassDuration(to minutes: Int) -> Int {
         let options = GroupClassDuration.allCases.map(\.minutes)
         return options.min(by: { abs($0 - minutes) < abs($1 - minutes) }) ?? 30
+    }
+    
+    private var classDurationCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Class duration")
+                .font(.headline)
+            Text("Set how long the timer will run when you start the class. Tap \"Start class timer\" in the menu to begin.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Picker("Duration", selection: $selectedSessionMinutes) {
+                ForEach(GroupClassDuration.allCases) { d in
+                    Text(d.label).tag(d.minutes)
+                }
+            }
+            .pickerStyle(.menu)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
     private var overviewCard: some View {

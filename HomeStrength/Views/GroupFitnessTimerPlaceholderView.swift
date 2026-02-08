@@ -72,7 +72,10 @@ struct GroupFitnessTimerPlaceholderView: View {
                     showRoutinePicker = false
                     pendingRoutine = routine
                     selectedSessionMinutes = closestClassDuration(to: routine.estimatedMinutes)
-                    showDurationSheet = true
+                    // Present duration sheet after picker dismisses so it appears reliably
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        showDurationSheet = true
+                    }
                 })
                 .environmentObject(groupFitnessStore)
             }
