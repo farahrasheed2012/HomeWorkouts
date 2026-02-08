@@ -9,7 +9,9 @@ import SwiftUI
 
 struct GroupFitnessRoutinesView: View {
     @EnvironmentObject var groupFitnessStore: GroupFitnessStore
+    @EnvironmentObject var userStore: UserStore
     @State private var selectedFormat: GroupClassFormat?
+    @State private var showProfilePicker = false
     
     var body: some View {
         NavigationStack {
@@ -50,6 +52,28 @@ struct GroupFitnessRoutinesView: View {
                 }
             }
             .navigationTitle("Class Routines")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Button {
+                            showProfilePicker = true
+                        } label: {
+                            Label("Switch profile", systemImage: "person.2")
+                        }
+                        Button(role: .destructive) {
+                            userStore.signOut()
+                        } label: {
+                            Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
+                    } label: {
+                        Label(userStore.currentUser?.displayName ?? "Profile", systemImage: "person.circle")
+                    }
+                }
+            }
+            .sheet(isPresented: $showProfilePicker) {
+                UserSelectionView(onProfileSelected: { showProfilePicker = false })
+                    .environmentObject(userStore)
+            }
             .navigationDestination(for: GroupFitnessRoutine.self) { routine in
                 GroupRoutineDetailView(routine: routine)
             }

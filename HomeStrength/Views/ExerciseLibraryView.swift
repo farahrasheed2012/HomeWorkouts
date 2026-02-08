@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ExerciseLibraryView: View {
     @EnvironmentObject var userStore: UserStore
+    @State private var showProfilePicker = false
     
     private var details: [ExerciseDetail] { ExerciseDetailStore.allDetails }
     
@@ -40,6 +41,28 @@ struct ExerciseLibraryView: View {
                 }
             }
             .navigationTitle("Exercise Library")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Button {
+                            showProfilePicker = true
+                        } label: {
+                            Label("Switch profile", systemImage: "person.2")
+                        }
+                        Button(role: .destructive) {
+                            userStore.signOut()
+                        } label: {
+                            Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
+                    } label: {
+                        Label(userStore.currentUser?.displayName ?? "Profile", systemImage: "person.circle")
+                    }
+                }
+            }
+            .sheet(isPresented: $showProfilePicker) {
+                UserSelectionView(onProfileSelected: { showProfilePicker = false })
+                    .environmentObject(userStore)
+            }
             .navigationDestination(for: ExerciseDetail.self) { detail in
                 ExerciseDetailView(detail: detail)
             }

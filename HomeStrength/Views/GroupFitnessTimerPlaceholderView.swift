@@ -11,6 +11,7 @@ struct GroupFitnessTimerPlaceholderView: View {
     @EnvironmentObject var groupFitnessStore: GroupFitnessStore
     @EnvironmentObject var userStore: UserStore
     @State private var showRoutinePicker = false
+    @State private var showProfilePicker = false
     @State private var routineForTimer: GroupFitnessRoutine?
     @State private var routineToLog: GroupFitnessRoutine?
     
@@ -41,6 +42,28 @@ struct GroupFitnessTimerPlaceholderView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle("Lead Class")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Button {
+                            showProfilePicker = true
+                        } label: {
+                            Label("Switch profile", systemImage: "person.2")
+                        }
+                        Button(role: .destructive) {
+                            userStore.signOut()
+                        } label: {
+                            Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
+                    } label: {
+                        Label(userStore.currentUser?.displayName ?? "Profile", systemImage: "person.circle")
+                    }
+                }
+            }
+            .sheet(isPresented: $showProfilePicker) {
+                UserSelectionView(onProfileSelected: { showProfilePicker = false })
+                    .environmentObject(userStore)
+            }
             .sheet(isPresented: $showRoutinePicker) {
                 GroupFitnessRoutinePickerView(onPick: { routine in
                     showRoutinePicker = false

@@ -13,6 +13,7 @@ struct GroupRoutineDetailView: View {
     let routine: GroupFitnessRoutine
     @State private var showTimer = false
     @State private var showLogSheet = false
+    @State private var showProfilePicker = false
     
     private var currentRoutine: GroupFitnessRoutine {
         groupFitnessStore.allRoutines.first { $0.id == routine.id } ?? routine
@@ -35,6 +36,22 @@ struct GroupRoutineDetailView: View {
         .navigationTitle(currentRoutine.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Menu {
+                    Button {
+                        showProfilePicker = true
+                    } label: {
+                        Label("Switch profile", systemImage: "person.2")
+                    }
+                    Button(role: .destructive) {
+                        userStore.signOut()
+                    } label: {
+                        Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                    }
+                } label: {
+                    Label(userStore.currentUser?.displayName ?? "Profile", systemImage: "person.circle")
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button {
@@ -56,6 +73,10 @@ struct GroupRoutineDetailView: View {
                     Image(systemName: "ellipsis.circle")
                 }
             }
+        }
+        .sheet(isPresented: $showProfilePicker) {
+            UserSelectionView(onProfileSelected: { showProfilePicker = false })
+                .environmentObject(userStore)
         }
         .fullScreenCover(isPresented: $showTimer) {
             ClassTimerView(

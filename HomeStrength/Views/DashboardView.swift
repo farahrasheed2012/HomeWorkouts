@@ -11,6 +11,7 @@ import Charts
 struct DashboardView: View {
     @EnvironmentObject var userStore: UserStore
     @EnvironmentObject var progressStore: ProgressStore
+    @State private var showProfilePicker = false
     
     private var userId: UUID? { userStore.currentUser?.id }
     private var profileType: UserProfileType? { userStore.currentUser?.profileType }
@@ -44,6 +45,28 @@ struct DashboardView: View {
                 }
             }
             .navigationTitle("Dashboard")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Button {
+                            showProfilePicker = true
+                        } label: {
+                            Label("Switch profile", systemImage: "person.2")
+                        }
+                        Button(role: .destructive) {
+                            userStore.signOut()
+                        } label: {
+                            Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
+                    } label: {
+                        Label(userStore.currentUser?.displayName ?? "Profile", systemImage: "person.circle")
+                    }
+                }
+            }
+            .sheet(isPresented: $showProfilePicker) {
+                UserSelectionView(onProfileSelected: { showProfilePicker = false })
+                    .environmentObject(userStore)
+            }
         }
     }
     

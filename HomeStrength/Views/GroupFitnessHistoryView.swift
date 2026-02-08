@@ -10,6 +10,7 @@ import SwiftUI
 struct GroupFitnessHistoryView: View {
     @EnvironmentObject var userStore: UserStore
     @EnvironmentObject var groupFitnessStore: GroupFitnessStore
+    @State private var showProfilePicker = false
     
     private var logs: [GroupClassLog] {
         guard let uid = userStore.currentUser?.id else { return [] }
@@ -67,6 +68,28 @@ struct GroupFitnessHistoryView: View {
                 }
             }
             .navigationTitle("Classes led")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Button {
+                            showProfilePicker = true
+                        } label: {
+                            Label("Switch profile", systemImage: "person.2")
+                        }
+                        Button(role: .destructive) {
+                            userStore.signOut()
+                        } label: {
+                            Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
+                    } label: {
+                        Label(userStore.currentUser?.displayName ?? "Profile", systemImage: "person.circle")
+                    }
+                }
+            }
+            .sheet(isPresented: $showProfilePicker) {
+                UserSelectionView(onProfileSelected: { showProfilePicker = false })
+                    .environmentObject(userStore)
+            }
         }
     }
 }

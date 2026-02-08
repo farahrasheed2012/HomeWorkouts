@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var selectedEquipment: Set<Equipment> = []
     @State private var showDesignWorkout = false
     @State private var showGenerator = false
+    @State private var showProfilePicker = false
     
     private var currentProfileType: UserProfileType? {
         userStore.currentUser?.profileType
@@ -112,6 +113,22 @@ struct ContentView: View {
             }
             .navigationTitle(userStore.currentUser?.displayName ?? "Workouts")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Button {
+                            showProfilePicker = true
+                        } label: {
+                            Label("Switch profile", systemImage: "person.2")
+                        }
+                        Button(role: .destructive) {
+                            userStore.signOut()
+                        } label: {
+                            Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
+                    } label: {
+                        Label(userStore.currentUser?.displayName ?? "Profile", systemImage: "person.circle")
+                    }
+                }
                 ToolbarItem(placement: .primaryAction) {
                     if !isYoungKid {
                         Button {
@@ -121,6 +138,10 @@ struct ContentView: View {
                         }
                     }
                 }
+            }
+            .sheet(isPresented: $showProfilePicker) {
+                UserSelectionView(onProfileSelected: { showProfilePicker = false })
+                    .environmentObject(userStore)
             }
             .navigationDestination(for: Workout.self) { workout in
                 WorkoutDetailView(workout: workout)
