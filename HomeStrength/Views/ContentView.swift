@@ -11,6 +11,7 @@ struct ContentView: View {
     @EnvironmentObject var progressStore: ProgressStore
     @State private var selectedEquipment: Set<Equipment> = []
     @State private var selectedFocus: MuscleGroup?
+    @State private var selectedDifficulty: DifficultyLevel?
     @State private var showDesignWorkout = false
     @State private var showGenerator = false
     @State private var showProfilePicker = false
@@ -25,7 +26,12 @@ struct ContentView: View {
     }
     
     private var filteredExercises: [Exercise] {
-        WorkoutStore.exercises(using: selectedEquipment)
+        let byEquipment = WorkoutStore.exercises(using: selectedEquipment)
+        guard let level = selectedDifficulty else { return byEquipment }
+        return byEquipment.filter { exercise in
+            guard let detail = ExerciseDetailStore.detail(forExerciseName: exercise.name) else { return true }
+            return detail.difficultyLevel == level
+        }
     }
     
     private var isYoungKid: Bool { currentProfileType?.isYoungKid == true }
@@ -126,6 +132,46 @@ struct ContentView: View {
         }
     }
     
+    private var difficultySection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Difficulty")
+                    .font(.subheadline)
+                    .fontWeight(Font.Weight.medium)
+                    .foregroundStyle(.secondary)
+                Text("Filter exercises by level. Applies to the list below.")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        DifficultyChip(label: "All", isSelected: selectedDifficulty == nil) {
+                            selectedDifficulty = nil
+                        }
+                        ForEach(DifficultyLevel.allCases, id: \.self) { level in
+                            DifficultyChip(
+                                label: difficultyLabel(level),
+                                isSelected: selectedDifficulty == level
+                            ) {
+                                selectedDifficulty = selectedDifficulty == level ? nil : level
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+            .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+            .listRowBackground(Color.clear)
+        }
+    }
+    
+    private func difficultyLabel(_ level: DifficultyLevel) -> String {
+        switch level {
+        case .easy: return "Beginner"
+        case .medium: return "Medium"
+        case .difficult: return "Expert"
+        }
+    }
+    
     private var workoutsSection: some View {
         Section(isYoungKid ? "Activities" : "Workouts") {
             ForEach(filteredWorkouts) { workout in
@@ -158,6 +204,7 @@ struct ContentView: View {
                 if !isYoungKid {
                     equipmentSection
                     muscleGroupSection
+                    if !selectedEquipment.isEmpty { difficultySection }
                 }
                 workoutsSection
                 allExercisesSection
@@ -262,6 +309,25 @@ private struct FocusChip: View {
             .background(isSelected ? Color.orange.opacity(0.35) : Color.gray.opacity(0.2))
             .foregroundStyle(isSelected ? .primary : .secondary)
             .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct DifficultyChip: View {
+    let label: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(label)
+                .font(.caption)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(isSelected ? Color.orange.opacity(0.35) : Color.gray.opacity(0.2))
+                .foregroundStyle(isSelected ? .primary : .secondary)
+                .clipShape(Capsule())
         }
         .buttonStyle(.plain)
     }

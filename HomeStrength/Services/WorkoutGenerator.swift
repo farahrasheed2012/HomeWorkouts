@@ -69,7 +69,21 @@ struct WorkoutGenerator {
         "Goblet Squat": .lowerBody, "Dumbbell Row": .upperBody, "Dumbbell Floor Press": .upperBody,
         "Dumbbell Shoulder Press": .upperBody, "Dumbbell Romanian Deadlift": .lowerBody,
         "Dumbbell Bicep Curl": .upperBody, "Tricep Extension": .upperBody, "Dumbbell Lunge": .lowerBody,
+        "Hammer Curl": .upperBody, "Lateral Raise": .upperBody, "Front Raise": .upperBody,
+        "Reverse Fly": .upperBody, "Incline Dumbbell Press": .upperBody, "Dumbbell Pullover": .upperBody,
+        "Concentration Curl": .upperBody, "Tricep Kickback": .upperBody, "Dumbbell Shrug": .upperBody,
+        "Dumbbell Chest Fly": .upperBody, "Arnold Press": .upperBody,
+        "Dumbbell Calf Raise": .lowerBody, "Dumbbell Step-Up": .lowerBody, "Dumbbell Swing": .lowerBody,
         "Band Pull-Apart": .upperBody, "Band Chest Stretch / Push": .upperBody, "Band Glute Bridge": .lowerBody,
+        "Band Row": .upperBody, "Band Chest Press": .upperBody, "Band Lateral Raise": .upperBody,
+        "Band Face Pull": .upperBody, "Band Bicep Curl": .upperBody, "Band Tricep Pushdown": .upperBody,
+        "Band Y Raise": .upperBody, "Band Single-Arm Row": .upperBody, "Band Reverse Fly": .upperBody,
+        "Band Overhead Press": .upperBody, "Band External Rotation": .upperBody,
+        "Band Pallof Press": .fullBody, "Band Wood Chop": .fullBody, "Band Crunch": .fullBody,
+        "Band Squat": .lowerBody, "Band Leg Curl": .lowerBody, "Band Hip Abduction": .lowerBody,
+        "Band Clam Shell": .lowerBody, "Band Monster Walk": .lowerBody, "Band Lateral Walk": .lowerBody,
+        "Band Deadlift": .lowerBody, "Band Good Morning": .lowerBody, "Band Donkey Kick": .lowerBody,
+        "Band Hip Thrust": .lowerBody,
         "Leg Press": .lowerBody, "Chest Press": .upperBody,
         "Chest Press (V4 Elite)": .upperBody, "Vertical Press (V4 Elite)": .upperBody, "Incline Press (V4 Elite)": .upperBody,
         "Pectoral Fly (V4 Elite)": .upperBody, "One Arm Pectoral Fly (V4 Elite)": .upperBody, "Pectoral Crossover (V4 Elite)": .upperBody, "Punch (V4 Elite)": .upperBody,
@@ -83,25 +97,30 @@ struct WorkoutGenerator {
         "Glute Bridge": .lowerBody,
         "Plank": .core, "Calf Raises": .lowerBody, "Treadmill Walk/Jog": .cardio, "Exercise Bike": .cardio,
         "Jump Squats": .lowerBody, "Bicep Curl": .upperBody, "Romanian Deadlift": .lowerBody,
+        "March in Place": .cardio, "Heel Raises (Seated)": .lowerBody, "Arm Circles": .upperBody,
+        "Lying Leg Raise": .core, "Toe Taps": .lowerBody, "Shoulder Rolls": .upperBody,
+        "Standing Hip Abduction": .lowerBody, "Wall Push-Up": .upperBody, "Chair Squat": .lowerBody,
+        "Standing Y Raise": .upperBody,
+        "Bodyweight Lunge": .lowerBody, "Reverse Lunge": .lowerBody, "Incline Push-Up": .upperBody,
+        "Side Plank": .core, "Single-Leg Glute Bridge": .lowerBody, "Bicycle Crunch": .core,
+        "High Knees": .cardio, "Butt Kicks": .cardio, "Jumping Jacks": .cardio, "Bear Crawl": .fullBody,
+        "Burpee": .fullBody, "Pike Push-Up": .upperBody, "Decline Push-Up": .upperBody,
+        "Single-Leg Deadlift": .lowerBody, "Hand-Release Push-Up": .upperBody, "Spiderman Push-Up": .upperBody,
+        "Tuck Jump": .lowerBody, "Long-Lever Plank": .core, "Hollow Hold": .core, "Jump Lunge": .lowerBody,
         "Cat-Cow": .core, "Child's Pose": .core, "Downward Dog": .fullBody, "Hip Stretch": .lowerBody,
+        "Cobra": .core, "Warrior I": .lowerBody, "Warrior II": .lowerBody, "Triangle Pose": .fullBody,
+        "Seated Forward Fold": .lowerBody, "Low Lunge": .lowerBody, "Pigeon Pose": .lowerBody,
+        "Thread the Needle": .core, "Supine Twist": .core, "Happy Baby": .lowerBody,
+        "Legs Up the Wall": .fullBody, "Corpse Pose (Savasana)": .fullBody, "Upward Dog": .core,
+        "Mountain Pose": .fullBody, "Tree Pose": .lowerBody, "Bridge Pose": .lowerBody,
+        "Reclined Butterfly": .lowerBody, "Figure-Four Stretch": .lowerBody, "Seated Spinal Twist": .core,
+        "Crescent Lunge": .lowerBody, "Plank (Yoga)": .core,
     ]
     
-    /// Yoga mat / stretch-style exercises (bodyweight, mat-friendly).
-    private static var yogaMatExercises: [Exercise] {
-        [
-            Exercise(name: "Cat-Cow", equipment: .yogaMat, instructions: "On all fours, round spine then arch. Breathe with the movement.", sets: 2, reps: "8", restSeconds: 15),
-            Exercise(name: "Child's Pose", equipment: .yogaMat, instructions: "Knees under hips, fold forward, arms extended. Hold and breathe.", sets: 2, reps: "30 sec", restSeconds: 20),
-            Exercise(name: "Downward Dog", equipment: .yogaMat, instructions: "Hips up, heels toward floor. Stretch hamstrings and shoulders.", sets: 2, reps: "30 sec", restSeconds: 20),
-            Exercise(name: "Hip Stretch", equipment: .yogaMat, instructions: "Seated or supine hip opener. Hold 20–30 sec each side.", sets: 2, reps: "30 sec", restSeconds: 15),
-        ]
-    }
-    
     private static var adultExercisePool: [Exercise] {
-        var pool = WorkoutStore.exerciseLibrary.map { ex in
+        WorkoutStore.exerciseLibrary.map { ex in
             Exercise(id: ex.id, name: ex.name, equipment: ex.equipment, instructions: ex.instructions, sets: ex.sets, reps: ex.reps, restSeconds: ex.restSeconds)
         }
-        pool.append(contentsOf: yogaMatExercises)
-        return pool
     }
     
     /// Kid activity pool: name, instructions, duration hint (seconds), energy (chill/medium/super).
