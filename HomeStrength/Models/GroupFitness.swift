@@ -42,8 +42,16 @@ struct GroupFitnessExercise: Identifiable, Codable, Hashable {
     var formNotes: String?
     /// Instructor callouts (e.g. "Keep breathing", "Modify if needed").
     var motivationalCues: [String]
+    /// Detailed steps for leading the exercise (optional; can also come from GroupFitnessExerciseDetailStore).
+    var steps: [String]
+    /// Short summary/instructions for the exercise.
+    var summary: String?
+    /// Instructor tips (e.g. "Keep knees over toes", "Exhale on exertion").
+    var tips: [String]
+    /// Placeholder image name for the exercise (e.g. in Assets).
+    var imagePlaceholderName: String?
     
-    init(id: UUID = UUID(), name: String, lowKeyOption: String, intermediateOption: String, proOption: String, durationSeconds: Int = 30, restSeconds: Int = 15, postpartumSafe: Bool = false, formNotes: String? = nil, motivationalCues: [String] = []) {
+    init(id: UUID = UUID(), name: String, lowKeyOption: String, intermediateOption: String, proOption: String, durationSeconds: Int = 30, restSeconds: Int = 15, postpartumSafe: Bool = false, formNotes: String? = nil, motivationalCues: [String] = [], steps: [String] = [], summary: String? = nil, tips: [String] = [], imagePlaceholderName: String? = nil) {
         self.id = id
         self.name = name
         self.lowKeyOption = lowKeyOption
@@ -54,6 +62,10 @@ struct GroupFitnessExercise: Identifiable, Codable, Hashable {
         self.postpartumSafe = postpartumSafe
         self.formNotes = formNotes
         self.motivationalCues = motivationalCues
+        self.steps = steps
+        self.summary = summary
+        self.tips = tips
+        self.imagePlaceholderName = imagePlaceholderName
     }
 }
 
@@ -126,6 +138,10 @@ struct ScaledExerciseView: Identifiable {
     let postpartumSafe: Bool
     let formNotes: String?
     let motivationalCues: [String]
+    let steps: [String]
+    let summary: String?
+    let tips: [String]
+    let imagePlaceholderName: String?
 }
 
 extension GroupFitnessRoutine {
@@ -161,7 +177,11 @@ extension GroupFitnessRoutine {
                         proOption: ex.proOption,
                         postpartumSafe: ex.postpartumSafe,
                         formNotes: ex.formNotes,
-                        motivationalCues: ex.motivationalCues
+                        motivationalCues: ex.motivationalCues,
+                        steps: ex.steps,
+                        summary: ex.summary,
+                        tips: ex.tips,
+                        imagePlaceholderName: ex.imagePlaceholderName
                     )
                 },
                 bpmSuggested: s.bpmSuggested,

@@ -210,7 +210,13 @@ struct GroupRoutineDetailView: View {
     }
     
     private func scaledExerciseRow(_ ex: ScaledExerciseView) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        let steps = GroupFitnessExerciseDetailStore.steps(for: ex)
+        let summary = GroupFitnessExerciseDetailStore.summary(for: ex)
+        let tips = GroupFitnessExerciseDetailStore.tips(for: ex)
+        let imageName = GroupFitnessExerciseDetailStore.imagePlaceholderName(for: ex)
+        let hasDetail = !steps.isEmpty || (summary != nil) || !tips.isEmpty || (imageName != nil)
+        
+        return VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(ex.name)
                     .font(.subheadline)
@@ -243,6 +249,57 @@ struct GroupRoutineDetailView: View {
                 Text("Callouts: \(ex.motivationalCues.joined(separator: " · "))")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
+            }
+            if hasDetail {
+                Divider()
+                if let summary = summary {
+                    Text(summary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if !steps.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Steps")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.secondary)
+                        ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
+                            HStack(alignment: .top, spacing: 6) {
+                                Text("\(index + 1).")
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
+                                Text(step)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+                if !tips.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Instructor tips")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.secondary)
+                        ForEach(tips, id: \.self) { tip in
+                            HStack(alignment: .top, spacing: 6) {
+                                Text("•")
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
+                                Text(tip)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+                if let imageName = imageName, !imageName.isEmpty {
+                    Image(imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 120)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
             }
         }
         .padding(10)

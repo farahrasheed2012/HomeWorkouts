@@ -75,7 +75,11 @@ class GroupFitnessStore: ObservableObject {
                         restSeconds: ex.restSeconds,
                         postpartumSafe: ex.postpartumSafe,
                         formNotes: ex.formNotes,
-                        motivationalCues: ex.motivationalCues
+                        motivationalCues: ex.motivationalCues,
+                        steps: ex.steps,
+                        summary: ex.summary,
+                        tips: ex.tips,
+                        imagePlaceholderName: ex.imagePlaceholderName
                     )
                 },
                 bpmSuggested: s.bpmSuggested,
