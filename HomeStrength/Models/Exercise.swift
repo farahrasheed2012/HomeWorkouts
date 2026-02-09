@@ -10,7 +10,9 @@ import Foundation
 enum Equipment: String, Codable, CaseIterable, Hashable {
     case dumbbells = "Dumbbells"
     case resistanceBands = "Resistance Bands"
-    case homeGym = "Home Gym"
+    case hoistV4Elite = "Hoist V4 Elite"
+    case legPressMachine = "Leg Press Machine"
+    case bench = "Bench"
     case treadmill = "Treadmill"
     case exerciseBike = "Exercise Bike"
     case bodyweight = "Bodyweight"
@@ -20,7 +22,9 @@ enum Equipment: String, Codable, CaseIterable, Hashable {
         switch self {
         case .dumbbells: return "dumbbell.fill"
         case .resistanceBands: return "bandage.fill"
-        case .homeGym: return "figure.strengthtraining.traditional"
+        case .hoistV4Elite: return "figure.strengthtraining.traditional"
+        case .legPressMachine: return "figure.walk"
+        case .bench: return "rectangle.fill"
         case .treadmill: return "figure.run"
         case .exerciseBike: return "bicycle"
         case .bodyweight: return "figure.arms.open"
