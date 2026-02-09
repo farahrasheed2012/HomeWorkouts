@@ -232,7 +232,7 @@ enum ExerciseDetailStore {
             easyVariation: "Use a lighter dumbbell or no weight. Sit to a chair and stand back up if needed.",
             mediumVariation: "Bodyweight or light dumbbell, full range.",
             difficultVariation: "Heavier dumbbell, pause at bottom, or add a pulse.",
-            imagePlaceholderName: "GobletSquat"
+            imagePlaceholderName: nil
         ),
         ExerciseDetail(
             exerciseName: "Jump Squats",

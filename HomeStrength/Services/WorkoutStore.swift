@@ -12,8 +12,8 @@ import SwiftUI
 class WorkoutStore: ObservableObject {
     @Published var workouts: [Workout] = []
     
-    /// Library of exercises to choose from when designing a workout. Filter by equipment.
-    static let exerciseLibrary: [Exercise] = buildExerciseLibrary()
+    /// Library of exercises to choose from when designing a workout. Filter by equipment. Nonisolated for Swift 6 (immutable Sendable, safe to read from any context).
+    nonisolated static let exerciseLibrary: [Exercise] = buildExerciseLibrary()
     
     init() {
         workouts = WorkoutStore.buildDefaultWorkouts()
@@ -57,12 +57,12 @@ class WorkoutStore: ObservableObject {
         }
     }
     
-    static func exercises(using equipment: Set<Equipment>) -> [Exercise] {
+    nonisolated static func exercises(using equipment: Set<Equipment>) -> [Exercise] {
         if equipment.isEmpty { return exerciseLibrary }
         return exerciseLibrary.filter { equipment.contains($0.equipment) }
     }
     
-    static func buildExerciseLibrary() -> [Exercise] {
+    nonisolated static func buildExerciseLibrary() -> [Exercise] {
         [
             Exercise(name: "Goblet Squat", equipment: .dumbbells, instructions: "Hold one dumbbell at chest. Squat down, keep chest up.", sets: 3, reps: "10"),
             Exercise(name: "Dumbbell Row", equipment: .dumbbells, instructions: "Support on bench or chair. Row to hip.", sets: 3, reps: "10 each"),
@@ -348,20 +348,29 @@ class WorkoutStore: ObservableObject {
             ),
             Workout(
                 name: "Hoist V4 Elite Only",
-                summary: "V4 Elite only. Legs and chest with variety.",
+                summary: "Full-body V4 Elite routine. All 42 machine exercises available in All exercises below.",
                 exercises: [
-                    Exercise(name: "Stationary Leg Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Feet shoulder-width. Push through heels.", sets: 3, reps: "10–12"),
-                    Exercise(name: "Chest Press (V4 Elite)", equipment: .hoistV4Elite, sets: 3, reps: "10"),
-                    Exercise(name: "Stationary Leg Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Narrow stance. Push through heels.", sets: 3, reps: "10–12"),
-                    Exercise(name: "Incline Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Adjust back pad to incline. 3 sets of 10.", sets: 3, reps: "10"),
-                    Exercise(name: "Stationary Leg Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Wide stance for glutes. 3 sets.", sets: 3, reps: "10–12"),
-                    Exercise(name: "Vertical Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Press arm hand grips. Control the negative.", sets: 3, reps: "10"),
-                    Exercise(name: "Stationary Leg Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Single leg if possible. 8 each.", sets: 3, reps: "8 each"),
-                    Exercise(name: "Pectoral Fly (V4 Elite)", equipment: .hoistV4Elite, instructions: "Strap handles. 12 reps.", sets: 3, reps: "12"),
-                    Exercise(name: "Stationary Leg Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Pause at bottom 1 sec. 10 reps.", sets: 3, reps: "10"),
-                    Exercise(name: "Chest Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Slow tempo: 3 sec down, 2 sec up.", sets: 3, reps: "10"),
+                    Exercise(name: "Chest Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Sit with back on pad. Grip handles and press forward. Adjust back pad for comfort.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Lat Pulldown (V4 Elite)", equipment: .hoistV4Elite, instructions: "Use lat bar attachment. Sit or kneel; pull bar to upper chest. Squeeze shoulder blades.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Leg Extension (V4 Elite)", equipment: .hoistV4Elite, instructions: "Seated at leg station. Extend legs against pad. Adjust roller for leg length.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Leg Curl (V4 Elite)", equipment: .hoistV4Elite, instructions: "Seated at leg station. Curl heels toward seat. Use ankle strap; adjust ROM as needed.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Shoulder Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Use V4 press arm in overhead position. Press handles up. Adjust range-of-motion as needed.", sets: 3, reps: "10"),
+                    Exercise(name: "Seated Row (V4 Elite)", equipment: .hoistV4Elite, instructions: "Use lat bar or strap handles. Pull to hips or lower chest. Keep back straight.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Stationary Leg Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Adjust back pad. Feet on platform. Press and return; don't lock knees.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Bicep Curl (V4 Elite)", equipment: .hoistV4Elite, instructions: "Use curl bar attachment. Curl toward shoulders. Keep elbows stable.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Tricep Pushdown (V4 Elite)", equipment: .hoistV4Elite, instructions: "Use strap or bar on high pulley. Push down; keep elbows at sides.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Incline Press (V4 Elite)", equipment: .hoistV4Elite, instructions: "Adjust V4 press arm and back pad to incline. Grasp articulating arm hand grips. Press.", sets: 3, reps: "10–12"),
+                    Exercise(name: "High Pull (V4 Elite)", equipment: .hoistV4Elite, instructions: "Adjust V4 press arm and roller pads. Grasp both strap handles. Pull to upper chest.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Lateral Deltoid (V4 Elite)", equipment: .hoistV4Elite, instructions: "Adjust V4 press arm. Grasp strap handle from low pulley. Raise arm out to side.", sets: 3, reps: "10–12 each"),
+                    Exercise(name: "Seated Rear Delt (V4 Elite)", equipment: .hoistV4Elite, instructions: "Adjust V4 press arm and roller pads. Grasp both strap handles. Pull back for rear delts.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Pectoral Fly (V4 Elite)", equipment: .hoistV4Elite, instructions: "Adjust V4 press arm and back pad. Grasp both strap handles. Open and close arms (fly).", sets: 3, reps: "10–12"),
+                    Exercise(name: "Stationary Calf Raise (V4 Elite)", equipment: .hoistV4Elite, instructions: "Adjust back pad. Balls of feet on platform; raise heels.", sets: 3, reps: "15"),
+                    Exercise(name: "Ab Crunch (V4 Elite)", equipment: .hoistV4Elite, instructions: "Use ab strap attachment. Kneel or stand; crunch by pulling strap toward knees.", sets: 3, reps: "12–15"),
+                    Exercise(name: "One Arm Row (V4 Elite)", equipment: .hoistV4Elite, instructions: "Adjust pulley. Grasp strap handle. Row to hip; keep back straight.", sets: 3, reps: "10–12 each"),
+                    Exercise(name: "Upright Row (V4 Elite)", equipment: .hoistV4Elite, instructions: "Adjust V4 press arm. Grasp both strap handles from low pulley. Pull up to chin.", sets: 3, reps: "10–12"),
+                    Exercise(name: "Side Bends (V4 Elite)", equipment: .hoistV4Elite, instructions: "Adjust V4 press arm. Grasp strap handle from low pulley. Bend torso to the side.", sets: 3, reps: "12–15 each"),
                 ],
-                estimatedMinutes: 25,
+                estimatedMinutes: 55,
                 profileType: .mom,
                 primaryFocus: .fullBody
             ),

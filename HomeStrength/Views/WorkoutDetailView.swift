@@ -57,7 +57,7 @@ struct WorkoutDetailView: View {
     }
     
     private var isWorkoutComplete: Bool {
-        guard let ex = currentExercise else { return true }
+        guard currentExercise != nil else { return true }
         return guidedExerciseIndex >= exercises.count - 1 && isLastSetOfExercise && restCountdown == 0
     }
     
