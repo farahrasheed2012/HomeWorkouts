@@ -110,7 +110,7 @@ struct GroupClassDurationSheet: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.teal)
+                    .tint(HSTheme.accent)
                 }
             }
             .navigationTitle("Set duration")
@@ -157,7 +157,7 @@ struct ClassTimerView: View {
                 
                 Text(state.formattedTime)
                     .font(.system(size: 56, weight: .bold, design: .rounded))
-                    .foregroundStyle(state.remainingSeconds <= 60 ? .teal : .primary)
+                    .foregroundStyle(state.remainingSeconds <= 60 ? HSTheme.accent : .primary)
                 
                 HStack(spacing: 16) {
                     Button {
@@ -171,7 +171,7 @@ struct ClassTimerView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.teal)
+                    .tint(HSTheme.accent)
                     
                     Button("Reset") {
                         state.reset()
@@ -183,7 +183,7 @@ struct ClassTimerView: View {
                 if state.remainingSeconds <= 0 {
                     Text("Class time complete!")
                         .font(.headline)
-                        .foregroundStyle(.teal)
+                        .foregroundStyle(HSTheme.accent)
                 }
                 
                 Spacer()
@@ -199,7 +199,7 @@ struct ClassTimerView: View {
                         onClassComplete()
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.teal)
+                    .tint(HSTheme.accent)
                 }
                 .padding()
             }

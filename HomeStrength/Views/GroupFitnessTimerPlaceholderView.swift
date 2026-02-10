@@ -23,7 +23,7 @@ struct GroupFitnessTimerPlaceholderView: View {
             VStack(spacing: 20) {
                 Image(systemName: "timer")
                     .font(.system(size: 60))
-                    .foregroundStyle(.teal.opacity(0.8))
+                    .foregroundStyle(HSTheme.accent.opacity(0.8))
                 Text("Lead a class")
                     .font(.title2)
                     .fontWeight(.semibold)
@@ -39,7 +39,7 @@ struct GroupFitnessTimerPlaceholderView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.teal)
+                .tint(HSTheme.accent)
                 .padding(.horizontal, 32)
                 .padding(.top, 8)
             }

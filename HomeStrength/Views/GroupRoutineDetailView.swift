@@ -157,7 +157,7 @@ struct GroupRoutineDetailView: View {
         return VStack(alignment: .leading, spacing: 8) {
             Label(currentRoutine.format.rawValue, systemImage: currentRoutine.format.icon)
                 .font(.subheadline)
-                .foregroundStyle(.teal)
+                .foregroundStyle(HSTheme.accent)
             Text(isScaled ? "\(scaled.displayMinutes) min class (scaled from \(currentRoutine.estimatedMinutes) min) · Bodyweight only · Mixed levels" : "\(scaled.displayMinutes) min · Bodyweight only · Mixed levels")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -186,7 +186,7 @@ struct GroupRoutineDetailView: View {
             if let bpm = section.bpmSuggested {
                 Text("Music: ~\(bpm) BPM")
                     .font(.caption)
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(HSTheme.accent)
             }
             if !section.instructorCues.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
@@ -229,7 +229,7 @@ struct GroupRoutineDetailView: View {
             if ex.postpartumSafe {
                 Text("Pelvic floor safe")
                     .font(.caption2)
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(HSTheme.accent)
             }
             Group {
                 Text("Low-key (postpartum/beginner): \(ex.lowKeyOption)")

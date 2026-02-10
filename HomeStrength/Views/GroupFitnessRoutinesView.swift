@@ -23,7 +23,7 @@ struct GroupFitnessRoutinesView: View {
                         } label: {
                             HStack {
                                 Image(systemName: format.icon)
-                                    .foregroundStyle(.teal)
+                                    .foregroundStyle(HSTheme.accent)
                                     .frame(width: 28)
                                 Text(format.rawValue)
                                     .foregroundStyle(.primary)
@@ -34,7 +34,7 @@ struct GroupFitnessRoutinesView: View {
                                 }
                                 if selectedFormat == format {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .foregroundStyle(.teal)
+                                        .foregroundStyle(HSTheme.accent)
                                 }
                             }
                         }
@@ -88,7 +88,7 @@ struct RoutineRow: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Image(systemName: routine.format.icon)
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(HSTheme.accent)
                     .frame(width: 28)
                 Text(routine.name)
                     .font(.headline)

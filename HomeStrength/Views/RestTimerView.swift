@@ -76,7 +76,7 @@ struct RestTimerView: View {
                 .foregroundStyle(.secondary)
             Text("\(state.remaining)s")
                 .font(.system(size: 56, weight: .bold, design: .rounded))
-                .foregroundStyle(state.remaining <= 10 ? .orange : .primary)
+                .foregroundStyle(state.remaining <= 10 ? HSTheme.accent : .primary)
             HStack(spacing: 16) {
                 Button {
                     if state.isRunning {
@@ -89,7 +89,7 @@ struct RestTimerView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.orange)
+                .tint(HSTheme.accent)
                 
                 Button("Reset") {
                     state.reset()

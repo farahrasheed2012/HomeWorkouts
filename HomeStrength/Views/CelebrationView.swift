@@ -15,12 +15,8 @@ struct CelebrationView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [Color.purple.opacity(0.3), Color.pink.opacity(0.2), Color.orange.opacity(0.2)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            Color(.systemGroupedBackground)
+                .ignoresSafeArea()
             
             VStack(spacing: 24) {
                 Text("🎉")
@@ -40,15 +36,15 @@ struct CelebrationView: View {
                 HStack(spacing: 16) {
                     Image(systemName: "star.fill")
                         .font(.title)
-                        .foregroundStyle(.yellow)
+                        .foregroundStyle(HSTheme.accent)
                         .rotationEffect(.degrees(starRotation))
                     Image(systemName: "star.fill")
                         .font(.system(size: 44))
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(HSTheme.accent)
                         .rotationEffect(.degrees(-starRotation * 0.8))
                     Image(systemName: "star.fill")
                         .font(.title)
-                        .foregroundStyle(.yellow)
+                        .foregroundStyle(HSTheme.accent)
                         .rotationEffect(.degrees(starRotation * 0.6))
                 }
                 .padding(.top, 8)
@@ -58,12 +54,11 @@ struct CelebrationView: View {
                 } label: {
                     Text("Done")
                         .font(.headline)
-                        .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.purple.gradient)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
+                .buttonStyle(.borderedProminent)
+                .tint(HSTheme.accent)
                 .padding(.horizontal, 48)
                 .padding(.top, 24)
             }

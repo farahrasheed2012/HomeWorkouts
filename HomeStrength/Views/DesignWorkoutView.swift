@@ -57,7 +57,7 @@ struct DesignWorkoutView: View {
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 8)
-                                .background(isOn ? Color.orange.opacity(0.3) : Color.gray.opacity(0.15))
+                                .background(isOn ? HSTheme.accentFill : HSTheme.tertiaryFill)
                                 .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
@@ -69,7 +69,7 @@ struct DesignWorkoutView: View {
                     ForEach(exercises) { ex in
                         HStack {
                             Image(systemName: ex.equipment.icon)
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(HSTheme.accent)
                                 .frame(width: 24)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(ex.name)
@@ -199,7 +199,7 @@ struct ExerciseLibrarySheet: View {
                 } label: {
                     HStack {
                         Image(systemName: ex.equipment.icon)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(HSTheme.accent)
                             .frame(width: 28)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(ex.name)

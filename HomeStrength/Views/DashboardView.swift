@@ -23,7 +23,7 @@ struct DashboardView: View {
             Group {
                 if let uid = userId {
                     ScrollView {
-                        VStack(alignment: .leading, spacing: 20) {
+                        VStack(alignment: .leading, spacing: HSTheme.spaceSection) {
                             statsGrid(userId: uid)
                             streakSection(userId: uid)
                             workoutsPerWeekChart(userId: uid)
@@ -36,8 +36,10 @@ struct DashboardView: View {
                             }
                             recentHistorySection(userId: uid)
                         }
-                        .padding()
+                        .padding(.horizontal, HSTheme.contentPaddingH)
+                        .padding(.vertical, HSTheme.contentPaddingV)
                     }
+                    .background(HSTheme.pageBackground)
                 } else {
                     Text("Select a user to see dashboard.")
                         .foregroundStyle(.secondary)
@@ -71,7 +73,7 @@ struct DashboardView: View {
     }
     
     private func statsGrid(userId: UUID) -> some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: HSTheme.spaceMD) {
             StatCard(title: "Total workouts", value: "\(progressStore.totalWorkoutsCount(userId: userId))")
             StatCard(title: "This week", value: "\(progressStore.workoutsThisWeek(userId: userId))")
             StatCard(title: "This month", value: "\(progressStore.workoutsThisMonth(userId: userId))")
@@ -85,15 +87,15 @@ struct DashboardView: View {
             if streak > 0 {
                 HStack {
                     Image(systemName: "flame.fill")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(HSTheme.accent)
                     Text("You're on a \(streak)-day streak! Keep it up.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                .padding()
+                .padding(HSTheme.spaceMD)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.orange.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .background(HSTheme.accentFill)
+                .clipShape(RoundedRectangle(cornerRadius: HSTheme.radiusLG))
             }
         }
     }
@@ -110,9 +112,9 @@ struct DashboardView: View {
         }
         weekCounts.reverse()
         
-        return VStack(alignment: .leading, spacing: 8) {
+        return VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
             Text("Workouts per week")
-                .font(.headline)
+                .font(.headline.weight(.semibold))
             if weekCounts.allSatisfy({ $0.count == 0 }) {
                 Text("Complete workouts to see your chart.")
                     .font(.caption)
@@ -125,7 +127,7 @@ struct DashboardView: View {
                         x: .value("Week", item.weekStart, unit: .weekOfYear),
                         y: .value("Workouts", item.count)
                     )
-                    .foregroundStyle(Color.orange.gradient)
+                    .foregroundStyle(HSTheme.accent)
                 }
                 .chartXAxis {
                     AxisMarks(values: .stride(by: .weekOfYear)) { _ in
@@ -135,17 +137,18 @@ struct DashboardView: View {
                 .frame(height: 160)
             }
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(HSTheme.spaceMD)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(HSTheme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HSTheme.radiusLG))
     }
     
     private func strengthProgressSection(userId: UUID) -> some View {
         let keyExercises = ["Goblet Squat", "Dumbbell Row", "Chest Press"]
         let weightHistoryGoblet = progressStore.weightHistory(userId: userId, exerciseName: "Goblet Squat")
-        return VStack(alignment: .leading, spacing: 12) {
+        return VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
             Text("Strength progress (weight used)")
-                .font(.headline)
+                .font(.headline.weight(.semibold))
             ForEach(keyExercises, id: \.self) { name in
                 StrengthExerciseRow(
                     name: name,
@@ -163,7 +166,7 @@ struct DashboardView: View {
                             x: .value("Date", item.element.0),
                             y: .value("Weight (lb)", item.element.1)
                         )
-                        .foregroundStyle(Color.orange.gradient)
+                        .foregroundStyle(HSTheme.accent)
                     }
                     .chartXAxis {
                         AxisMarks(values: .stride(by: .day)) { _ in
@@ -179,16 +182,17 @@ struct DashboardView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(HSTheme.spaceMD)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(HSTheme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HSTheme.radiusLG))
     }
     
     private func verticalJumpSection(userId: UUID) -> some View {
         let history = progressStore.verticalJumpHistory(userId: userId)
-        return VStack(alignment: .leading, spacing: 8) {
+        return VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
             Text("Vertical jump (inches)")
-                .font(.headline)
+                .font(.headline.weight(.semibold))
             if let latest = history.first {
                 HStack {
                     Text("Latest")
@@ -204,29 +208,30 @@ struct DashboardView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(HSTheme.spaceMD)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(HSTheme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HSTheme.radiusLG))
     }
     
     private func kidBadgesSection(userId: UUID) -> some View {
         let total = progressStore.totalWorkoutsCount(userId: userId)
         let streak = progressStore.currentStreakDays(userId: userId)
-        return VStack(alignment: .leading, spacing: 8) {
+        return VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
             Text("Your achievements")
-                .font(.headline)
+                .font(.headline.weight(.semibold))
             HStack(spacing: 12) {
                 if total >= 1 {
-                    BadgePill(icon: "star.fill", label: "First activity!", color: .yellow)
+                    BadgePill(icon: "star.fill", label: "First activity!", color: HSTheme.accent)
                 }
                 if total >= 5 {
-                    BadgePill(icon: "flame.fill", label: "5 done!", color: .orange)
+                    BadgePill(icon: "flame.fill", label: "5 done!", color: HSTheme.accent)
                 }
                 if total >= 10 {
-                    BadgePill(icon: "trophy.fill", label: "10 activities!", color: .purple)
+                    BadgePill(icon: "trophy.fill", label: "10 activities!", color: HSTheme.accent)
                 }
                 if streak >= 3 {
-                    BadgePill(icon: "flame.fill", label: "\(streak)-day streak!", color: .red)
+                    BadgePill(icon: "flame.fill", label: "\(streak)-day streak!", color: HSTheme.accent)
                 }
             }
             .padding(.vertical, 4)
@@ -236,16 +241,17 @@ struct DashboardView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(HSTheme.spaceMD)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(HSTheme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HSTheme.radiusLG))
     }
     
     private func recentHistorySection(userId: UUID) -> some View {
         let recent = progressStore.completed(forUserId: userId).prefix(10)
-        return VStack(alignment: .leading, spacing: 8) {
+        return VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
             Text("Recent workouts")
-                .font(.headline)
+                .font(.headline.weight(.semibold))
             if recent.isEmpty {
                 Text("No workouts logged yet.")
                     .font(.caption)
@@ -266,9 +272,10 @@ struct DashboardView: View {
                 }
             }
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(HSTheme.spaceMD)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(HSTheme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HSTheme.radiusLG))
     }
 }
 
@@ -277,7 +284,7 @@ struct StatCard: View {
     let value: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: HSTheme.spaceXS) {
             Text(title)
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -286,9 +293,9 @@ struct StatCard: View {
                 .fontWeight(.semibold)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(HSTheme.spaceMD)
+        .background(HSTheme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: HSTheme.radiusLG))
     }
 }
 

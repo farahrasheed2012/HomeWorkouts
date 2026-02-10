@@ -166,7 +166,7 @@ struct WorkoutDetailView: View {
                         .padding(.vertical, 8)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(isYoungKid ? .purple : .orange)
+                .tint(HSTheme.accent)
             }
             
             Section(header: Text(isYoungKid ? "What we'll do" : "Exercises"), footer: currentWorkout.exercises.count > exercises.count && !isYoungKid ? Text("Today's \(exercises.count) of \(currentWorkout.exercises.count) — different day, different mix.") : Text("")) {
@@ -239,7 +239,7 @@ struct WorkoutDetailView: View {
         let s = elapsedSeconds % 60
         return HStack {
             Image(systemName: "timer")
-                .foregroundStyle(.orange)
+                .foregroundStyle(HSTheme.accent)
             Text(String(format: "%d:%02d", m, s))
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .monospacedDigit()
@@ -249,7 +249,7 @@ struct WorkoutDetailView: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color.orange.opacity(0.12))
+        .background(HSTheme.accentFill)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -274,7 +274,7 @@ struct WorkoutDetailView: View {
             HStack(spacing: 12) {
                 Image(systemName: exercise.equipment.icon)
                     .font(.title2)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(HSTheme.accent)
                 Text(exercise.name)
                     .font(.title2)
                     .fontWeight(.semibold)
@@ -315,11 +315,11 @@ struct WorkoutDetailView: View {
             Text("\(restCountdown)s")
                 .font(.system(size: 44, weight: .bold, design: .rounded))
                 .monospacedDigit()
-                .foregroundStyle(restCountdown <= 10 ? .orange : .primary)
+                .foregroundStyle(restCountdown <= 10 ? HSTheme.accent : .primary)
         }
         .frame(maxWidth: .infinity)
         .padding(28)
-        .background(Color.orange.opacity(0.1))
+        .background(HSTheme.accentFill)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -335,14 +335,14 @@ struct WorkoutDetailView: View {
                 .padding(.vertical, 16)
         }
         .buttonStyle(.borderedProminent)
-        .tint(.green)
+        .tint(HSTheme.accent)
     }
     
     private var guidedCompleteView: some View {
         VStack(spacing: 24) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 64))
-                .foregroundStyle(.green)
+                .foregroundStyle(HSTheme.accent)
             Text("Workout complete!")
                 .font(.title)
                 .fontWeight(.bold)
@@ -360,7 +360,7 @@ struct WorkoutDetailView: View {
                     .padding(.vertical, 12)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.orange)
+            .tint(HSTheme.accent)
             Button {
                 endGuidedMode()
             } label: {
@@ -460,7 +460,7 @@ struct ExerciseStepsCard: View {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.caption2)
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(HSTheme.accent)
                             Text(tip)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
@@ -528,7 +528,7 @@ struct ExerciseRowView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
                 Image(systemName: exercise.equipment.icon)
-                    .foregroundStyle(isSimpleMode ? .purple : .orange)
+                    .foregroundStyle(HSTheme.accent)
                     .frame(width: 28, alignment: .center)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(exercise.name)
@@ -581,7 +581,7 @@ struct ExerciseRowView: View {
                                 .fontWeight(.medium)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
-                                .background(completedSetIds.contains(id) ? Color.green.opacity(0.3) : Color.orange.opacity(0.2))
+                                .background(completedSetIds.contains(id) ? HSTheme.accentFill : HSTheme.tertiaryFill)
                                 .clipShape(Capsule())
                         }
                         .buttonStyle(.plain)

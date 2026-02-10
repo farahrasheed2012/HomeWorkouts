@@ -20,7 +20,7 @@ struct ExerciseLibraryView: View {
                     HStack(spacing: 12) {
                         Image(systemName: detail.equipment.icon)
                             .font(.title3)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(HSTheme.accent)
                             .frame(width: 36)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(detail.exerciseName)
@@ -40,6 +40,9 @@ struct ExerciseLibraryView: View {
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(HSTheme.pageBackground)
             .navigationTitle("Exercise Library")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -75,7 +78,7 @@ struct ExerciseDetailView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: HSTheme.spaceSection) {
                 // Exercise demo image (from Assets when available)
                 Group {
                     if let name = detail.imagePlaceholderName, !name.isEmpty {
@@ -86,36 +89,36 @@ struct ExerciseDetailView: View {
                             .clipped()
                     } else {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.orange.opacity(0.15))
+                            RoundedRectangle(cornerRadius: HSTheme.radiusLG)
+                                .fill(HSTheme.accentFill)
                                 .frame(height: 180)
                             Image(systemName: "figure.strengthtraining.traditional")
                                 .font(.system(size: 60))
-                                .foregroundStyle(.orange.opacity(0.6))
+                                .foregroundStyle(HSTheme.accent.opacity(0.8))
                         }
-                        .overlay(Text("Demo image").font(.caption).foregroundStyle(.secondary).padding(8), alignment: .topLeading)
+                        .overlay(Text("Demo image").font(.caption).foregroundStyle(.secondary).padding(HSTheme.spaceXS), alignment: .topLeading)
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .background(HSTheme.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: HSTheme.radiusLG))
                 
                 Text(detail.difficultyLevel.rawValue)
                     .font(.caption)
                     .fontWeight(.medium)
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 8)
+                    .padding(.horizontal, HSTheme.spaceXS)
                     .padding(.vertical, 4)
-                    .background(Color.orange.opacity(0.15))
+                    .background(HSTheme.tertiaryFill)
                     .clipShape(Capsule())
                 
                 Text(detail.summary)
                     .font(.body)
                 
                 if !detail.steps.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
                         Text("How to do it")
-                            .font(.headline)
+                            .font(.headline.weight(.semibold))
                         ForEach(Array(detail.steps.enumerated()), id: \.offset) { i, step in
                             HStack(alignment: .top, spacing: 8) {
                                 Text("\(i + 1).")
@@ -128,13 +131,13 @@ struct ExerciseDetailView: View {
                 }
                 
                 if !detail.tips.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
                         Text("Tips (avoid common mistakes)")
-                            .font(.headline)
+                            .font(.headline.weight(.semibold))
                         ForEach(detail.tips, id: \.self) { tip in
                             HStack(alignment: .top, spacing: 8) {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(HSTheme.accent)
                                 Text(tip)
                                     .font(.subheadline)
                             }
@@ -143,27 +146,27 @@ struct ExerciseDetailView: View {
                 }
                 
                 if !detail.targets.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
                         Text("What it targets")
-                            .font(.headline)
+                            .font(.headline.weight(.semibold))
                         Text(detail.targets.joined(separator: ", "))
                             .font(.subheadline)
                     }
                 }
                 
                 if !detail.muscles.isEmpty && !detail.isKidFriendly {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
                         Text("Muscles targeted")
-                            .font(.headline)
+                            .font(.headline.weight(.semibold))
                         Text(detail.muscles.joined(separator: ", "))
                             .font(.subheadline)
                     }
                 }
                 
                 if let safety = detail.safetyNote, !safety.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
                         Text("Safety")
-                            .font(.headline)
+                            .font(.headline.weight(.semibold))
                         Text(safety)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -171,9 +174,9 @@ struct ExerciseDetailView: View {
                 }
                 
                 if detail.easyVariation != nil || detail.mediumVariation != nil || detail.difficultVariation != nil {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
                         Text("Variations by level")
-                            .font(.headline)
+                            .font(.headline.weight(.semibold))
                         if let e = detail.easyVariation, !e.isEmpty {
                             Text("Easy")
                                 .font(.subheadline)
@@ -201,8 +204,10 @@ struct ExerciseDetailView: View {
                     }
                 }
             }
-            .padding()
+            .padding(.horizontal, HSTheme.contentPaddingH)
+            .padding(.vertical, HSTheme.contentPaddingV)
         }
+        .background(HSTheme.pageBackground)
         .navigationTitle(detail.exerciseName)
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -50,7 +50,7 @@ struct ContentView: View {
                 HStack(spacing: 12) {
                     Image(systemName: "sparkles")
                         .font(.title2)
-                        .foregroundStyle(isYoungKid ? .purple : .orange)
+                        .foregroundStyle(HSTheme.accent)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(isYoungKid ? "Generate fun activities" : "Generate a workout")
                             .font(.headline)
@@ -99,7 +99,7 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
             }
-            .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+            .listRowInsets(EdgeInsets(top: HSTheme.spaceSM, leading: HSTheme.spaceMD, bottom: HSTheme.spaceSM, trailing: HSTheme.spaceMD))
             .listRowBackground(Color.clear)
         }
     }
@@ -127,7 +127,7 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
             }
-            .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+            .listRowInsets(EdgeInsets(top: HSTheme.spaceSM, leading: HSTheme.spaceMD, bottom: HSTheme.spaceSM, trailing: HSTheme.spaceMD))
             .listRowBackground(Color.clear)
         }
     }
@@ -159,7 +159,7 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
             }
-            .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+            .listRowInsets(EdgeInsets(top: HSTheme.spaceSM, leading: HSTheme.spaceMD, bottom: HSTheme.spaceSM, trailing: HSTheme.spaceMD))
             .listRowBackground(Color.clear)
         }
     }
@@ -209,6 +209,9 @@ struct ContentView: View {
                 workoutsSection
                 allExercisesSection
             }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(HSTheme.pageBackground)
             .navigationTitle(userStore.currentUser?.displayName ?? "Workouts")
             .toolbar { toolbarContent }
             .sheet(isPresented: $showProfilePicker) {
@@ -283,7 +286,7 @@ private struct EquipmentChip: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? Color.orange.opacity(0.35) : Color.gray.opacity(0.2))
+            .background(isSelected ? HSTheme.accentFill : HSTheme.tertiaryFill)
             .foregroundStyle(isSelected ? .primary : .secondary)
             .clipShape(Capsule())
         }
@@ -306,7 +309,7 @@ private struct FocusChip: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? Color.orange.opacity(0.35) : Color.gray.opacity(0.2))
+            .background(isSelected ? HSTheme.accentFill : HSTheme.tertiaryFill)
             .foregroundStyle(isSelected ? .primary : .secondary)
             .clipShape(Capsule())
         }
@@ -325,9 +328,9 @@ private struct DifficultyChip: View {
                 .font(.caption)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.orange.opacity(0.35) : Color.gray.opacity(0.2))
-                .foregroundStyle(isSelected ? .primary : .secondary)
-                .clipShape(Capsule())
+.background(isSelected ? HSTheme.accentFill : HSTheme.tertiaryFill)
+            .foregroundStyle(isSelected ? .primary : .secondary)
+            .clipShape(Capsule())
         }
         .buttonStyle(.plain)
     }
@@ -346,7 +349,7 @@ private struct ExerciseListRow: View {
                 HStack(spacing: 12) {
                     Image(systemName: exercise.equipment.icon)
                         .font(.title3)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(HSTheme.accent)
                         .frame(width: 36)
                     Text(exercise.name)
                         .font(.subheadline)
@@ -359,7 +362,7 @@ private struct ExerciseListRow: View {
         HStack(spacing: 12) {
             Image(systemName: exercise.equipment.icon)
                 .font(.title3)
-                .foregroundStyle(.orange)
+                .foregroundStyle(HSTheme.accent)
                 .frame(width: 36)
             VStack(alignment: .leading, spacing: 2) {
                 Text(exercise.name)
@@ -380,7 +383,7 @@ struct WorkoutRow: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Image(systemName: "figure.strengthtraining.traditional")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(HSTheme.accent)
                     .frame(width: 32, alignment: .center)
                 Text(workout.name)
                     .font(.headline)

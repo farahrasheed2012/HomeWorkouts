@@ -13,26 +13,26 @@ struct UserSelectionView: View {
     var onProfileSelected: (() -> Void)?
     
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: HSTheme.spaceSection) {
             Text("Who's working out?")
                 .font(.title)
                 .fontWeight(.bold)
-                .padding(.top, 40)
+                .padding(.top, HSTheme.spaceXL)
             
-            VStack(spacing: 16) {
+            VStack(spacing: HSTheme.spaceMD) {
                 ForEach(UserStore.availableProfiles) { profile in
                     Button {
                         userStore.selectUser(profile)
                         onProfileSelected?()
                     } label: {
-                        HStack(spacing: 16) {
+                        HStack(spacing: HSTheme.spaceMD) {
                             Image(systemName: profile.profileType.icon)
                                 .font(.title)
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(HSTheme.accent)
                                 .frame(width: 44, height: 44)
-                                .background(Color.orange.opacity(0.2))
+                                .background(HSTheme.accentFill)
                                 .clipShape(Circle())
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: HSTheme.spaceXS) {
                                 Text(profile.displayName)
                                     .font(.headline)
                                     .foregroundStyle(.primary)
@@ -45,20 +45,20 @@ struct UserSelectionView: View {
                                 .font(.caption)
                                 .foregroundStyle(.tertiary)
                         }
-                        .padding()
-                        .background(Color(.secondarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(HSTheme.spaceMD)
+                        .background(HSTheme.cardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: HSTheme.radiusLG))
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 8)
+            .padding(.horizontal, HSTheme.contentPaddingH)
+            .padding(.top, HSTheme.spaceSM)
             
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemGroupedBackground))
+        .background(HSTheme.pageBackground)
     }
 }
 

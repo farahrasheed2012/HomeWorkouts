@@ -77,7 +77,7 @@ struct RandomWorkoutGeneratorView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.purple)
+                    .tint(HSTheme.accent)
                 }
             } else {
                 Section("Duration") {
@@ -108,7 +108,7 @@ struct RandomWorkoutGeneratorView: View {
                                 }
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 6)
-                                .background(isOn ? Color.orange.opacity(0.3) : Color.gray.opacity(0.15))
+                                .background(isOn ? HSTheme.accentFill : HSTheme.tertiaryFill)
                                 .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
@@ -138,7 +138,7 @@ struct RandomWorkoutGeneratorView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.orange)
+                    .tint(HSTheme.accent)
                 }
             }
         }
@@ -169,7 +169,7 @@ struct RandomWorkoutGeneratorView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
                             Image(systemName: ex.equipment.icon)
-                                .foregroundStyle(isYoungKid ? .purple : .orange)
+                                .foregroundStyle(HSTheme.accent)
                                 .frame(width: 24)
                             Text(ex.name)
                                 .font(.subheadline)
@@ -201,7 +201,7 @@ struct RandomWorkoutGeneratorView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(isYoungKid ? .purple : .orange)
+                    .tint(HSTheme.accent)
                     
                     NavigationLink(value: workout) {
                         Label("Start workout", systemImage: "play.fill")
