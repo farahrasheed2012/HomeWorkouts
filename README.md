@@ -43,12 +43,24 @@ A simple iOS app for at-home strength and cardio workouts using dumbbells, resis
 
 ## How to open and run
 
-1. Open the project: double-click **`HomeStrength/HomeStrength.xcodeproj`** (inside the inner `HomeStrength` folder), or in Terminal:
+1. **Open the project in Xcode** (either works):
+   - Double-click **`HomeStrength.xcworkspace`** at the repo root (recommended), or
+   - Double-click **`HomeStrength/HomeStrength.xcodeproj`**
+   - From Terminal (from the cloned repo folder):
    ```bash
+   open HomeStrength.xcworkspace
+   # or
    open HomeStrength/HomeStrength.xcodeproj
    ```
-2. Select the **HomeStrength** scheme and a simulator or device.
-3. Press **Run** (⌘R).
+2. In the toolbar scheme menu, select **HomeStrength** (if empty: **Product → Scheme → HomeStrength**, or **Manage Schemes…** and ensure **HomeStrength** is checked and **Shared**).
+3. Choose **My Mac** (macOS) or an iPhone/iPad simulator/device.
+4. Press **Run** (⌘R).
+
+### No scheme showing?
+
+- Make sure you opened **`.xcworkspace`** or **`.xcodeproj`**, not just the parent folder in Finder.
+- The Xcode project lives at `HomeStrength/HomeStrength.xcodeproj` inside the repo (one level nested).
+- In Xcode: **Product → Scheme → Manage Schemes…** → check **Shared** for **HomeStrength**.
 
 ## Suggested weekly schedule (beginner-friendly)
 
