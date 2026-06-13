@@ -15,7 +15,7 @@ struct CelebrationView: View {
     
     var body: some View {
         ZStack {
-            Color(.systemGroupedBackground)
+            PlatformColor.groupedBackground
                 .ignoresSafeArea()
             
             VStack(spacing: 24) {

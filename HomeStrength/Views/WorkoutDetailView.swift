@@ -70,7 +70,7 @@ struct WorkoutDetailView: View {
             }
         }
         .navigationTitle(currentWorkout.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationBarTitle()
         .toolbar {
             if isGuidedMode {
                 ToolbarItem(placement: .cancellationAction) {
@@ -138,7 +138,7 @@ struct WorkoutDetailView: View {
                 )
             }
         }
-        .fullScreenCover(isPresented: $showCelebration) {
+        .platformFullScreenCover(isPresented: $showCelebration) {
             CelebrationView(onDismiss: { showCelebration = false })
         }
         .sheet(isPresented: $showRestTimer) {
@@ -303,7 +303,7 @@ struct WorkoutDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(PlatformColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -508,7 +508,7 @@ struct ExerciseStepsCard: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.tertiarySystemGroupedBackground))
+        .background(PlatformColor.tertiaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }

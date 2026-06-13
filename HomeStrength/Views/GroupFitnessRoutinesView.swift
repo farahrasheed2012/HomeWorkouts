@@ -53,7 +53,7 @@ struct GroupFitnessRoutinesView: View {
             }
             .navigationTitle("Class Routines")
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .platformLeading) {
                     Menu {
                         Button {
                             showProfilePicker = true

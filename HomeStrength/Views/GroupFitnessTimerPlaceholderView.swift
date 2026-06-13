@@ -46,7 +46,7 @@ struct GroupFitnessTimerPlaceholderView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle("Lead Class")
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .platformLeading) {
                     Menu {
                         Button {
                             showProfilePicker = true
@@ -96,7 +96,7 @@ struct GroupFitnessTimerPlaceholderView: View {
                     )
                 }
             }
-            .fullScreenCover(item: $routineForTimer) { routine in
+            .platformFullScreenCover(item: $routineForTimer) { routine in
                 ClassTimerView(
                     routine: routine,
                     sessionMinutes: selectedSessionMinutes,
@@ -141,7 +141,7 @@ struct GroupFitnessRoutinePickerView: View {
                 }
             }
             .navigationTitle("Choose routine")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationBarTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

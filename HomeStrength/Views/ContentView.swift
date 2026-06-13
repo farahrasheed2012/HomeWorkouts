@@ -209,8 +209,8 @@ struct ContentView: View {
                 workoutsSection
                 allExercisesSection
             }
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
+            .platformListStyle()
+            .platformScrollContentBackgroundHidden()
             .background(HSTheme.pageBackground)
             .navigationTitle(userStore.currentUser?.displayName ?? "Workouts")
             .toolbar { toolbarContent }
@@ -241,7 +241,7 @@ struct ContentView: View {
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: .platformLeading) {
             Menu {
                 Button {
                     showProfilePicker = true

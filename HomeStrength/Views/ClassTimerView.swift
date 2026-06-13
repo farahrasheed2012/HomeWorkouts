@@ -36,11 +36,11 @@ final class ClassTimerState: ObservableObject {
             remainingSeconds -= 1
             if remainingSeconds == 60 {
                 AudioServicesPlaySystemSound(1057)
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                HapticFeedback.impact(.medium)
             }
             if remainingSeconds == 0 {
                 AudioServicesPlaySystemSound(1304)
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                HapticFeedback.success()
                 stop()
             }
         }
@@ -114,7 +114,7 @@ struct GroupClassDurationSheet: View {
                 }
             }
             .navigationTitle("Set duration")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationBarTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { onCancel() }
@@ -204,7 +204,7 @@ struct ClassTimerView: View {
                 .padding()
             }
             .padding(.top, 24)
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationBarTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") {

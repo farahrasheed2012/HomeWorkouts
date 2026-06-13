@@ -36,7 +36,7 @@ struct RandomWorkoutGeneratorView: View {
                 }
             }
             .navigationTitle(isYoungKid ? "Generate fun activities" : "Generate workout")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationBarTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
@@ -160,7 +160,7 @@ struct RandomWorkoutGeneratorView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
-                .background(Color(.secondarySystemGroupedBackground))
+                .background(PlatformColor.secondaryGroupedBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 
                 Text("Exercises")
@@ -188,7 +188,7 @@ struct RandomWorkoutGeneratorView: View {
                     }
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.tertiarySystemGroupedBackground))
+                    .background(PlatformColor.tertiaryGroupedBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 

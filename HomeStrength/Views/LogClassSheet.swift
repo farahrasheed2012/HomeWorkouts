@@ -26,9 +26,9 @@ struct LogClassSheet: View {
                 }
                 Section("Session") {
                     TextField("Number of participants (optional)", text: $participantCountText)
-                        .keyboardType(.numberPad)
+                        .platformNumberPadKeyboard()
                     TextField("Duration used in min (optional)", text: $durationMinutesText)
-                        .keyboardType(.numberPad)
+                        .platformNumberPadKeyboard()
                 }
                 Section("Notes") {
                     TextField("How did the group respond? Modifications used? Feedback?", text: $notes, axis: .vertical)
@@ -36,7 +36,7 @@ struct LogClassSheet: View {
                 }
             }
             .navigationTitle("Log class led")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationBarTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

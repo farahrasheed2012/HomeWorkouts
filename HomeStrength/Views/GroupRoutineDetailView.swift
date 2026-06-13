@@ -42,9 +42,9 @@ struct GroupRoutineDetailView: View {
             .padding()
         }
         .navigationTitle(currentRoutine.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationBarTitle()
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItem(placement: .platformLeading) {
                 Menu {
                     Button {
                         showProfilePicker = true
@@ -98,7 +98,7 @@ struct GroupRoutineDetailView: View {
                 onCancel: { showDurationSheet = false }
             )
         }
-        .fullScreenCover(isPresented: $showTimer) {
+        .platformFullScreenCover(isPresented: $showTimer) {
             ClassTimerView(
                 routine: currentRoutine,
                 sessionMinutes: selectedSessionMinutes,
@@ -147,7 +147,7 @@ struct GroupRoutineDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(PlatformColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -169,7 +169,7 @@ struct GroupRoutineDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(PlatformColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -205,7 +205,7 @@ struct GroupRoutineDetailView: View {
             }
         }
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(PlatformColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -303,7 +303,7 @@ struct GroupRoutineDetailView: View {
             }
         }
         .padding(10)
-        .background(Color(.tertiarySystemGroupedBackground))
+        .background(PlatformColor.tertiaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
     
@@ -317,7 +317,7 @@ struct GroupRoutineDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(PlatformColor.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
@@ -333,7 +333,7 @@ struct GroupRoutineDetailView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
-                .background(Color(.secondarySystemGroupedBackground))
+                .background(PlatformColor.secondaryGroupedBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         }

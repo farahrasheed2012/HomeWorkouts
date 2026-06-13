@@ -9,14 +9,14 @@ import SwiftUI
 
 enum HSTheme {
     // MARK: - Surfaces
-    static let pageBackground = Color(.systemGroupedBackground)
-    static let cardBackground = Color(.secondarySystemGroupedBackground)
-    static let tertiaryFill = Color(.tertiarySystemFill)
+    static let pageBackground = PlatformColor.groupedBackground
+    static let cardBackground = PlatformColor.secondaryGroupedBackground
+    static let tertiaryFill = PlatformColor.tertiaryFill
 
     // MARK: - Accent (single accent color — Apple Fitness / Reminders style)
-    static let accent = Color(.systemBlue)
+    static let accent = PlatformColor.systemBlue
     /// Soft fill for selected states and emphasis (e.g. chips, streak banner)
-    static let accentFill = Color(.systemBlue).opacity(0.15)
+    static let accentFill = PlatformColor.systemBlue.opacity(0.15)
 
     // MARK: - Spacing (8pt grid, reduced density)
     static let spaceXS: CGFloat = 8

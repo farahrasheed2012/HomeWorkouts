@@ -104,7 +104,7 @@ struct DesignWorkoutView: View {
                 }
             }
             .navigationTitle(isEditing ? "Edit Workout" : "Design Workout")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationBarTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -213,7 +213,7 @@ struct ExerciseLibrarySheet: View {
                 }
             }
             .navigationTitle("Add exercise")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationBarTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", action: onDismiss)
@@ -251,7 +251,7 @@ struct AddCustomExerciseSheet: View {
                     .lineLimit(3...6)
             }
             .navigationTitle("Custom exercise")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationBarTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", action: onDismiss)

@@ -48,7 +48,7 @@ struct DashboardView: View {
             }
             .navigationTitle("Dashboard")
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .platformLeading) {
                     Menu {
                         Button {
                             showProfilePicker = true

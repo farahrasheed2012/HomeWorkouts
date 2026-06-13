@@ -40,12 +40,12 @@ struct ExerciseLibraryView: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
+            .platformListStyle()
+            .platformScrollContentBackgroundHidden()
             .background(HSTheme.pageBackground)
             .navigationTitle("Exercise Library")
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .platformLeading) {
                     Menu {
                         Button {
                             showProfilePicker = true
@@ -209,7 +209,7 @@ struct ExerciseDetailView: View {
         }
         .background(HSTheme.pageBackground)
         .navigationTitle(detail.exerciseName)
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationBarTitle()
     }
 }
 

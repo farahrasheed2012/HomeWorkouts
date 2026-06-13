@@ -36,11 +36,11 @@ final class RestTimerState: ObservableObject {
             remaining -= 1
             if remaining == 10 {
                 AudioServicesPlaySystemSound(1057)
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                HapticFeedback.impact(.light)
             }
             if remaining == 0 {
                 AudioServicesPlaySystemSound(1304)
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                HapticFeedback.success()
                 stop()
             }
         }

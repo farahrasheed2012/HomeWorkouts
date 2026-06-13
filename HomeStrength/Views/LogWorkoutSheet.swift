@@ -26,49 +26,13 @@ struct LogWorkoutSheet: View {
         NavigationStack {
             Form {
                 if isSimpleMode {
-                    Section {
-                        Text("You did it! Tap Save to mark this activity as complete.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    Section("Session") {
-                        TextField("How long? (minutes, optional)", text: $durationMinutes)
-                            .keyboardType(.numberPad)
-                    }
+                    simpleModeSections
                 } else {
-                    Section("Exercises") {
-                        ForEach(workout.exercises) { ex in
-                            HStack {
-                                Text(ex.name)
-                                    .font(.subheadline)
-                                Spacer()
-                                TextField("Weight (lb)", value: Binding(
-                                    get: { weightPerExercise[ex.id] ?? 0 },
-                                    set: { weightPerExercise[ex.id] = $0 }
-                                ), format: .number)
-                                    .keyboardType(.decimalPad)
-                                    .multilineTextAlignment(.trailing)
-                                    .frame(width: 80)
-                                Text("lb")
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                    Section("Session") {
-                        TextField("Duration (minutes)", text: $durationMinutes)
-                            .keyboardType(.numberPad)
-                    }
-                    if isDaughterMS {
-                        Section("Volleyball metrics") {
-                            TextField("Vertical jump (inches)", text: $verticalJump)
-                                .keyboardType(.decimalPad)
-                            TextField("Notes (e.g. serving practice)", text: $notes)
-                        }
-                    }
+                    detailedModeSections
                 }
             }
             .navigationTitle(isSimpleMode ? "Complete activity" : "Log workout")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationBarTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -79,7 +43,57 @@ struct LogWorkoutSheet: View {
             }
         }
     }
-    
+
+    @ViewBuilder
+    private var simpleModeSections: some View {
+        Section {
+            Text("You did it! Tap Save to mark this activity as complete.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        Section("Session") {
+            TextField("How long? (minutes, optional)", text: $durationMinutes)
+                .platformNumberPadKeyboard()
+        }
+    }
+
+    @ViewBuilder
+    private var detailedModeSections: some View {
+        Section("Exercises") {
+            ForEach(workout.exercises) { ex in
+                exerciseWeightRow(ex)
+            }
+        }
+        Section("Session") {
+            TextField("Duration (minutes)", text: $durationMinutes)
+                .platformNumberPadKeyboard()
+        }
+        if isDaughterMS {
+            Section("Volleyball metrics") {
+                TextField("Vertical jump (inches)", text: $verticalJump)
+                    .platformDecimalPadKeyboard()
+                TextField("Notes (e.g. serving practice)", text: $notes)
+            }
+        }
+    }
+
+    private func exerciseWeightRow(_ ex: Exercise) -> some View {
+        HStack {
+            Text(ex.name)
+                .font(.subheadline)
+            Spacer()
+            TextField("Weight (lb)", value: Binding(
+                get: { weightPerExercise[ex.id] ?? 0 },
+                set: { weightPerExercise[ex.id] = $0 }
+            ), format: .number)
+            .platformDecimalPadKeyboard()
+            .multilineTextAlignment(.trailing)
+            .frame(width: 80)
+            Text("lb")
+                .foregroundStyle(.secondary)
+        }
+    }
+
     private func saveAndDismiss() {
         let loggedExercises: [LoggedExercise]
         if isSimpleMode {

@@ -69,7 +69,7 @@ struct GroupFitnessHistoryView: View {
             }
             .navigationTitle("Classes led")
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .platformLeading) {
                     Menu {
                         Button {
                             showProfilePicker = true
