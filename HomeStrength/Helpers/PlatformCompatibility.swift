@@ -101,6 +101,51 @@ extension View {
         self
         #endif
     }
+
+    /// Buttons inside a macOS `List` often ignore clicks when using bordered styles.
+    @ViewBuilder
+    func platformListActionButtonStyle() -> some View {
+        #if os(macOS)
+        buttonStyle(.plain)
+        #else
+        buttonStyle(.borderedProminent)
+        #endif
+    }
+
+    @ViewBuilder
+    func platformSheetFrame() -> some View {
+        #if os(macOS)
+        frame(minWidth: 760, minHeight: 640)
+        #else
+        self
+        #endif
+    }
+
+    @ViewBuilder
+    func platformWorkoutSessionFrame() -> some View {
+        #if os(macOS)
+        frame(minWidth: 960, minHeight: 720)
+        #else
+        self
+        #endif
+    }
+
+    /// Center workout content and fill the available detail area on Mac.
+    @ViewBuilder
+    func workoutContentLayout() -> some View {
+        frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(HSTheme.pageBackground)
+    }
+
+    @ViewBuilder
+    func workoutReadableContent() -> some View {
+        frame(maxWidth: HSTheme.workoutContentMaxWidth)
+            .frame(maxWidth: .infinity)
+    }
+
+    func appReadabilitySettings(_ settings: AppSettingsStore) -> some View {
+        self
+    }
 }
 
 extension ToolbarItemPlacement {
@@ -125,7 +170,7 @@ extension View {
         #else
         sheet(item: item, onDismiss: onDismiss) { value in
             content(value)
-                .frame(minWidth: 720, minHeight: 520)
+                .platformWorkoutSessionFrame()
         }
         #endif
     }
@@ -141,7 +186,7 @@ extension View {
         #else
         sheet(isPresented: isPresented, onDismiss: onDismiss) {
             content()
-                .frame(minWidth: 720, minHeight: 520)
+                .platformWorkoutSessionFrame()
         }
         #endif
     }

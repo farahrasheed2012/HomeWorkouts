@@ -9,7 +9,9 @@ struct WorkoutDetailView: View {
     @EnvironmentObject var store: WorkoutStore
     @EnvironmentObject var progressStore: ProgressStore
     @EnvironmentObject var userStore: UserStore
+    @EnvironmentObject var appSettings: AppSettingsStore
     let workout: Workout
+    var startGuidedOnAppear = false
     @State private var completedSets: Set<String> = []
     @State private var showEditSheet = false
     @State private var showLogSheet = false
@@ -22,10 +24,16 @@ struct WorkoutDetailView: View {
     @State private var guidedExerciseIndex = 0
     @State private var guidedSetIndex = 0
     @State private var restCountdown = 0
-    @State private var workoutStartDate: Date?
-    @State private var tick = 0
+    @State private var elapsedSeconds = 0
+    @State private var sessionState: WorkoutSessionState = .ready
     @State private var showGuidedComplete = false
+    @State private var showStopConfirmation = false
     @State private var afterRestGoToNextExercise = false
+    @State private var showExerciseInstructions = false
+
+    private enum WorkoutSessionState {
+        case ready, running, paused
+    }
     
     private var currentWorkout: Workout {
         store.workouts.first(where: { $0.id == workout.id }) ?? workout
@@ -37,9 +45,8 @@ struct WorkoutDetailView: View {
     /// Today's exercise set: random subset when workout has 10+ exercises so each day is unique.
     private var exercises: [Exercise] { currentWorkout.exercisesForToday() }
     
-    private var elapsedSeconds: Int {
-        guard let start = workoutStartDate else { return 0 }
-        return max(0, Int(Date().timeIntervalSince(start)))
+    private var formattedElapsed: String {
+        String(format: "%d:%02d", elapsedSeconds / 60, elapsedSeconds % 60)
     }
     
     private var currentExercise: Exercise? {
@@ -62,62 +69,54 @@ struct WorkoutDetailView: View {
     }
     
     var body: some View {
-        Group {
-            if isGuidedMode {
-                guidedWorkoutBody
-            } else {
-                listBody
-            }
-        }
+        listBody
         .navigationTitle(currentWorkout.name)
         .inlineNavigationBarTitle()
         .toolbar {
-            if isGuidedMode {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Exit") {
-                        endGuidedMode()
-                    }
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    startGuidedMode()
+                } label: {
+                    Label(
+                        isYoungKid ? "Start activities" : "Start workout",
+                        systemImage: "play.circle.fill"
+                    )
                 }
-            } else {
-                ToolbarItem(placement: .primaryAction) {
-                    if isYoungKid {
+                .disabled(exercises.isEmpty)
+            }
+            ToolbarItem(placement: .primaryAction) {
+                if isYoungKid {
+                    Button {
+                        showLogSheet = true
+                    } label: {
+                        Label("I did it!", systemImage: "checkmark.circle.fill")
+                    }
+                } else {
+                    Menu {
+                        Button {
+                            showRestTimer = true
+                        } label: {
+                            Label("Rest timer", systemImage: "timer")
+                        }
                         Button {
                             showLogSheet = true
                         } label: {
-                            Label("I did it!", systemImage: "checkmark.circle.fill")
+                            Label("Complete workout", systemImage: "checkmark.circle")
                         }
-                    } else {
-                        Menu {
-                            Button {
-                                showRestTimer = true
-                            } label: {
-                                Label("Rest timer", systemImage: "timer")
-                            }
-                            Button {
-                                showLogSheet = true
-                            } label: {
-                                Label("Complete workout", systemImage: "checkmark.circle")
-                            }
-                            Button {
-                                showEditSheet = true
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
+                        Button {
+                            showEditSheet = true
                         } label: {
-                            Image(systemName: "ellipsis.circle")
+                            Label("Edit", systemImage: "pencil")
                         }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
                     }
                 }
             }
         }
-        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
-            guard isGuidedMode else { return }
-            tick = tick + 1
-            if restCountdown > 0 {
-                restCountdown -= 1
-                if restCountdown == 0 {
-                    advanceToNext()
-                }
+        .onAppear {
+            if startGuidedOnAppear && !isGuidedMode {
+                startGuidedMode()
             }
         }
         .sheet(isPresented: $showEditSheet) {
@@ -146,51 +145,164 @@ struct WorkoutDetailView: View {
                 showRestTimer = false
             }
         }
+        .platformFullScreenCover(isPresented: $isGuidedMode, onDismiss: endGuidedMode) {
+            NavigationStack {
+                guidedWorkoutBody
+                    .navigationTitle(currentWorkout.name)
+                    .inlineNavigationBarTitle()
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Exit") {
+                                if sessionState == .ready {
+                                    endGuidedMode()
+                                } else {
+                                    showStopConfirmation = true
+                                }
+                            }
+                        }
+                    }
+            }
+            .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+                guard sessionState == .running else { return }
+                elapsedSeconds += 1
+                if restCountdown > 0 {
+                    restCountdown -= 1
+                    if restCountdown == 0 {
+                        advanceToNext()
+                    }
+                }
+            }
+            .alert("Stop workout?", isPresented: $showStopConfirmation) {
+                Button("Keep going", role: .cancel) {}
+                Button("Stop workout", role: .destructive) {
+                    finishGuidedWorkoutEarly()
+                }
+            } message: {
+                Text("Your elapsed time will be saved and you can log what you completed.")
+            }
+            .appReadabilitySettings(appSettings)
+        }
+        .appReadabilitySettings(appSettings)
     }
     
     private var listBody: some View {
-        List {
-            Section {
-                Text(currentWorkout.summary)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text("Estimated time: \(currentWorkout.estimatedMinutes) min")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                Button {
-                    startGuidedMode()
-                } label: {
-                    Label(isYoungKid ? "Start activities (timed & auto-advance)" : "Start workout (timed & auto-advance)", systemImage: "play.circle.fill")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(HSTheme.accent)
+        #if os(macOS)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                workoutSummarySection
+                workoutExercisesSection
             }
-            
-            Section(header: Text(isYoungKid ? "What we'll do" : "Exercises"), footer: currentWorkout.exercises.count > exercises.count && !isYoungKid ? Text("Today's \(exercises.count) of \(currentWorkout.exercises.count) — different day, different mix.") : Text("")) {
-                ForEach(currentWorkout.exercises) { exercise in
-                    VStack(alignment: .leading, spacing: 0) {
-                        ExerciseRowView(
-                            exercise: exercise,
-                            isCardio: isCardio,
-                            isSimpleMode: isYoungKid,
-                            completedSetIds: $completedSets,
-                            onStartRest: {
-                                restTimerSeconds = exercise.restSeconds
-                                showRestTimer = true
-                            }
-                        )
-                        if let detail = ExerciseDetailStore.detail(forExerciseName: exercise.name), !isYoungKid {
-                            ExerciseStepsCard(detail: detail)
-                                .padding(.top, 8)
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        #else
+        List {
+            workoutSummarySection
+            workoutExercisesSection
+        }
+        #endif
+    }
+
+    private var workoutSummarySection: some View {
+        Group {
+            #if os(macOS)
+            VStack(alignment: .leading, spacing: 12) {
+                summaryContent
+                startWorkoutButton
+            }
+            .padding()
+            .background(PlatformColor.secondaryGroupedBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            #else
+            Section {
+                summaryContent
+                startWorkoutButton
+            }
+            #endif
+        }
+    }
+
+    private var summaryContent: some View {
+        Group {
+            Text(currentWorkout.summary)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Text("Estimated time: \(currentWorkout.estimatedMinutes) min")
+                .font(.caption)
+                .foregroundStyle(HSTheme.secondaryText(highContrast: appSettings.highContrast))
+        }
+    }
+
+    private var startWorkoutButton: some View {
+        Button {
+            startGuidedMode()
+        } label: {
+            Label(isYoungKid ? "Start activities (timed & auto-advance)" : "Start workout (timed & auto-advance)", systemImage: "play.circle.fill")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                #if os(macOS)
+                .background(HSTheme.accent)
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                #endif
+        }
+        .platformListActionButtonStyle()
+        .tint(HSTheme.accent)
+        #if !os(macOS)
+        .listRowBackground(Color.clear)
+        #endif
+    }
+
+    @ViewBuilder
+    private var workoutExercisesSection: some View {
+        #if os(macOS)
+        VStack(alignment: .leading, spacing: 12) {
+            Text(isYoungKid ? "What we'll do" : "Exercises")
+                .font(.headline)
+            if currentWorkout.exercises.count > exercises.count && !isYoungKid {
+                Text("Today's \(exercises.count) of \(currentWorkout.exercises.count) — different day, different mix.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            ForEach(currentWorkout.exercises) { exercise in
+                exerciseCard(exercise)
             }
         }
+        #else
+        Section(header: Text(isYoungKid ? "What we'll do" : "Exercises"), footer: currentWorkout.exercises.count > exercises.count && !isYoungKid ? Text("Today's \(exercises.count) of \(currentWorkout.exercises.count) — different day, different mix.") : Text("")) {
+            ForEach(currentWorkout.exercises) { exercise in
+                exerciseCard(exercise)
+            }
+        }
+        #endif
+    }
+
+    private func exerciseCard(_ exercise: Exercise) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ExerciseRowView(
+                exercise: exercise,
+                isCardio: isCardio,
+                isSimpleMode: isYoungKid,
+                completedSetIds: $completedSets,
+                onStartRest: {
+                    restTimerSeconds = exercise.restSeconds
+                    showRestTimer = true
+                }
+            )
+            if let detail = ExerciseDetailStore.detail(forExerciseName: exercise.name), !isYoungKid {
+                ExerciseStepsCard(detail: detail)
+                    .environmentObject(appSettings)
+                    .padding(.top, 8)
+            }
+        }
+        .padding(.vertical, 4)
+        #if os(macOS)
+        .padding()
+        .background(PlatformColor.secondaryGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        #endif
     }
     
     private var guidedWorkoutBody: some View {
@@ -199,34 +311,31 @@ struct WorkoutDetailView: View {
                 guidedCompleteView
             } else if let exercise = currentExercise {
                 ScrollView {
-                    VStack(spacing: 24) {
+                    VStack(spacing: HSTheme.spaceLG) {
                         elapsedTimerBlock
                         progressBlock(exercise: exercise)
-                        exerciseBlock(exercise: exercise)
+                        focusedExerciseBlock(exercise: exercise)
                         if restCountdown > 0 {
-                            VStack(spacing: 16) {
-                                restBlock
-                                Button {
-                                    restCountdown = 0
-                                    advanceToNext()
-                                } label: {
-                                    Label("Skip rest", systemImage: "forward.fill")
-                                }
-                                .buttonStyle(.bordered)
-                            }
+                            restBlock
                         } else {
-                            VStack(spacing: 12) {
-                                completeSetButton(exercise: exercise)
-                                Button {
-                                    skipCurrent()
-                                } label: {
-                                    Label("Skip \(isYoungKid ? "activity" : "exercise")", systemImage: "forward.fill")
-                                }
-                                .buttonStyle(.bordered)
-                            }
+                            completeSetButton(exercise: exercise)
+                        }
+                        if sessionState == .ready {
+                            Text("Tap Start when you're ready — the timer begins once you do.")
+                                .font(HSTheme.font(.workoutMeta, largeText: appSettings.largeText))
+                                .foregroundStyle(HSTheme.secondaryText(highContrast: appSettings.highContrast))
+                                .multilineTextAlignment(.center)
                         }
                     }
-                    .padding()
+                    .padding(HSTheme.contentPaddingH)
+                    .workoutReadableContent()
+                }
+                .workoutContentLayout()
+                .onChange(of: guidedExerciseIndex) { _, _ in
+                    showExerciseInstructions = false
+                }
+                .onChange(of: guidedSetIndex) { _, _ in
+                    showExerciseInstructions = false
                 }
             } else {
                 guidedCompleteView
@@ -235,22 +344,93 @@ struct WorkoutDetailView: View {
     }
     
     private var elapsedTimerBlock: some View {
-        let m = elapsedSeconds / 60
-        let s = elapsedSeconds % 60
-        return HStack {
-            Image(systemName: "timer")
-                .foregroundStyle(HSTheme.accent)
-            Text(String(format: "%d:%02d", m, s))
-                .font(.system(size: 28, weight: .bold, design: .rounded))
-                .monospacedDigit()
-            Text("elapsed")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+        VStack(spacing: HSTheme.spaceMD) {
+            HStack {
+                Image(systemName: "timer")
+                    .foregroundStyle(HSTheme.accent)
+                Text(formattedElapsed)
+                    .font(HSTheme.font(.timer, largeText: appSettings.largeText))
+                    .monospacedDigit()
+                Text(timerStatusLabel)
+                    .font(HSTheme.font(.timerLabel, largeText: appSettings.largeText))
+                    .foregroundStyle(HSTheme.secondaryText(highContrast: appSettings.highContrast))
+            }
+            workoutTimerControls
         }
         .frame(maxWidth: .infinity)
-        .padding()
+        .padding(HSTheme.spaceMD)
         .background(HSTheme.accentFill)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: HSTheme.radiusMD))
+    }
+
+    private var timerStatusLabel: String {
+        switch sessionState {
+        case .ready: return "ready"
+        case .running: return restCountdown > 0 ? "resting" : "elapsed"
+        case .paused: return "paused"
+        }
+    }
+
+    private var workoutTimerControls: some View {
+        HStack(spacing: 10) {
+            switch sessionState {
+            case .ready:
+                workoutControlButton(title: "Start", systemImage: "play.fill", prominent: true) {
+                    startSessionTimer()
+                }
+            case .running:
+                workoutControlButton(title: "Pause", systemImage: "pause.fill") {
+                    pauseSessionTimer()
+                }
+            case .paused:
+                workoutControlButton(title: "Resume", systemImage: "play.fill", prominent: true) {
+                    resumeSessionTimer()
+                }
+            }
+
+            workoutControlButton(title: "Stop", systemImage: "stop.fill") {
+                showStopConfirmation = true
+            }
+            .disabled(sessionState == .ready)
+
+            workoutControlButton(title: skipButtonTitle, systemImage: "forward.fill") {
+                skipFromControls()
+            }
+            .disabled(sessionState == .ready)
+        }
+    }
+
+    private var skipButtonTitle: String {
+        if restCountdown > 0 { return "Skip rest" }
+        return isYoungKid ? "Skip activity" : "Skip"
+    }
+
+    private func workoutControlButton(
+        title: String,
+        systemImage: String,
+        prominent: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        Group {
+            if prominent {
+                Button(action: action) {
+                    Label(title, systemImage: systemImage)
+                        .font(HSTheme.font(.controlButton, largeText: appSettings.largeText))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, appSettings.largeText ? 12 : 10)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(HSTheme.accent)
+            } else {
+                Button(action: action) {
+                    Label(title, systemImage: systemImage)
+                        .font(HSTheme.font(.controlButton, largeText: appSettings.largeText))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, appSettings.largeText ? 12 : 10)
+                }
+                .buttonStyle(.bordered)
+            }
+        }
     }
     
     private func progressBlock(exercise: Exercise) -> some View {
@@ -258,17 +438,82 @@ struct WorkoutDetailView: View {
         let totalEx = exercises.count
         let setNum = min(guidedSetIndex + 1, exercise.sets)
         let totalSets = exercise.sets
-        return HStack(spacing: 16) {
+        return HStack(spacing: HSTheme.spaceMD) {
             Text("Exercise \(exNum) of \(totalEx)")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(HSTheme.font(.workoutMeta, largeText: appSettings.largeText))
+                .foregroundStyle(HSTheme.secondaryText(highContrast: appSettings.highContrast))
             Text("Set \(setNum) of \(totalSets)")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(HSTheme.font(.workoutMeta, largeText: appSettings.largeText))
+                .foregroundStyle(HSTheme.secondaryText(highContrast: appSettings.highContrast))
         }
         .frame(maxWidth: .infinity)
     }
-    
+
+    private func focusedExerciseBlock(exercise: Exercise) -> some View {
+        VStack(alignment: .leading, spacing: HSTheme.spaceMD) {
+            HStack(spacing: 12) {
+                Image(systemName: exercise.equipment.icon)
+                    .font(HSTheme.font(.workoutSubtitle, largeText: appSettings.largeText))
+                    .foregroundStyle(HSTheme.accent)
+                Text(exercise.name)
+                    .font(HSTheme.font(.workoutTitle, largeText: appSettings.largeText))
+            }
+
+            if let instructions = exercise.instructions, !instructions.isEmpty {
+                Text(instructions)
+                    .font(HSTheme.font(.workoutBody, largeText: appSettings.largeText))
+                    .foregroundStyle(HSTheme.secondaryText(highContrast: appSettings.highContrast))
+            }
+
+            if isCardio || exercise.sets == 1 {
+                Text(exercise.reps)
+                    .font(HSTheme.font(.workoutSubtitle, largeText: appSettings.largeText))
+                    .foregroundStyle(.primary)
+            } else {
+                Text("\(exercise.sets) sets × \(exercise.reps)")
+                    .font(HSTheme.font(.workoutSubtitle, largeText: appSettings.largeText))
+                    .foregroundStyle(.primary)
+                Text("Rest \(exercise.restSeconds)s between sets")
+                    .font(HSTheme.font(.workoutMeta, largeText: appSettings.largeText))
+                    .foregroundStyle(HSTheme.secondaryText(highContrast: appSettings.highContrast))
+            }
+
+            if let detail = ExerciseDetailStore.detail(forExerciseName: exercise.name), !isYoungKid {
+                VStack(alignment: .leading, spacing: HSTheme.spaceSM) {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showExerciseInstructions.toggle()
+                        }
+                    } label: {
+                        HStack {
+                            Text(showExerciseInstructions ? "Hide instructions" : "Show instructions")
+                                .font(HSTheme.font(.sectionHeader, largeText: appSettings.largeText))
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Image(systemName: showExerciseInstructions ? "chevron.up" : "chevron.down")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(HSTheme.secondaryText(highContrast: appSettings.highContrast))
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+
+                    if showExerciseInstructions {
+                        ExerciseStepsCard(detail: detail, compact: false, workoutMode: true)
+                            .environmentObject(appSettings)
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(HSTheme.spaceMD)
+        .background(
+            PlatformColor.secondaryGroupedBackground,
+            in: RoundedRectangle(cornerRadius: HSTheme.radiusMD)
+        )
+    }
+
     private func exerciseBlock(exercise: Exercise) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
@@ -294,10 +539,11 @@ struct WorkoutDetailView: View {
                     .foregroundStyle(.secondary)
                 Text("Rest \(exercise.restSeconds)s between sets")
                     .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(HSTheme.secondaryText(highContrast: appSettings.highContrast))
             }
             if let detail = ExerciseDetailStore.detail(forExerciseName: exercise.name) {
                 ExerciseStepsCard(detail: detail, compact: false)
+                    .environmentObject(appSettings)
                     .padding(.top, 4)
             }
         }
@@ -308,19 +554,19 @@ struct WorkoutDetailView: View {
     }
     
     private var restBlock: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: HSTheme.spaceSM) {
             Text("Rest")
-                .font(.headline)
-                .foregroundStyle(.secondary)
+                .font(HSTheme.font(.sectionHeader, largeText: appSettings.largeText))
+                .foregroundStyle(HSTheme.secondaryText(highContrast: appSettings.highContrast))
             Text("\(restCountdown)s")
-                .font(.system(size: 44, weight: .bold, design: .rounded))
+                .font(.system(size: appSettings.largeText ? 52 : 44, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(restCountdown <= 10 ? HSTheme.accent : .primary)
         }
         .frame(maxWidth: .infinity)
         .padding(28)
         .background(HSTheme.accentFill)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: HSTheme.radiusMD))
     }
     
     private func completeSetButton(exercise: Exercise) -> some View {
@@ -330,29 +576,27 @@ struct WorkoutDetailView: View {
             completeCurrentSet(exercise: exercise)
         } label: {
             Label(label, systemImage: "checkmark.circle.fill")
-                .font(.headline)
+                .font(HSTheme.font(.workoutSubtitle, largeText: appSettings.largeText))
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
+                .padding(.vertical, appSettings.largeText ? 18 : 16)
         }
         .buttonStyle(.borderedProminent)
         .tint(HSTheme.accent)
+        .disabled(sessionState == .ready)
     }
     
     private var guidedCompleteView: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: HSTheme.spaceLG) {
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 64))
+                .font(.system(size: appSettings.largeText ? 72 : 64))
                 .foregroundStyle(HSTheme.accent)
             Text("Workout complete!")
-                .font(.title)
-                .fontWeight(.bold)
-            let m = elapsedSeconds / 60
-            let s = elapsedSeconds % 60
-            Text("Time: \(m):\(String(format: "%02d", s))")
-                .font(.title2)
-                .foregroundStyle(.secondary)
+                .font(HSTheme.font(.workoutTitle, largeText: appSettings.largeText))
+            Text("Time: \(formattedElapsed)")
+                .font(HSTheme.font(.workoutSubtitle, largeText: appSettings.largeText))
+                .foregroundStyle(HSTheme.secondaryText(highContrast: appSettings.highContrast))
             Button {
-                showGuidedComplete = false
+                endGuidedMode()
                 showLogSheet = true
             } label: {
                 Label("Log workout", systemImage: "checkmark.circle")
@@ -369,26 +613,64 @@ struct WorkoutDetailView: View {
             .buttonStyle(.bordered)
         }
         .padding(32)
+        .workoutReadableContent()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .workoutContentLayout()
     }
     
     private func startGuidedMode() {
-        isGuidedMode = true
+        guard !exercises.isEmpty else { return }
         guidedExerciseIndex = 0
         guidedSetIndex = 0
         restCountdown = 0
-        workoutStartDate = Date()
+        elapsedSeconds = 0
+        sessionState = .ready
         showGuidedComplete = false
+        showStopConfirmation = false
+        showExerciseInstructions = false
+        isGuidedMode = true
     }
     
     private func endGuidedMode() {
         isGuidedMode = false
-        workoutStartDate = nil
         showGuidedComplete = false
+        showStopConfirmation = false
+        guidedExerciseIndex = 0
+        guidedSetIndex = 0
+        restCountdown = 0
+        elapsedSeconds = 0
+        sessionState = .ready
+    }
+
+    private func startSessionTimer() {
+        sessionState = .running
+    }
+
+    private func pauseSessionTimer() {
+        sessionState = .paused
+    }
+
+    private func resumeSessionTimer() {
+        sessionState = .running
+    }
+
+    private func finishGuidedWorkoutEarly() {
+        sessionState = .paused
+        showGuidedComplete = true
+    }
+
+    private func skipFromControls() {
+        if restCountdown > 0 {
+            restCountdown = 0
+            advanceToNext()
+        } else {
+            skipCurrent()
+        }
     }
     
     private func completeCurrentSet(exercise: Exercise) {
         if isLastSetOfExercise && !hasMoreExercises {
+            sessionState = .paused
             showGuidedComplete = true
             return
         }
@@ -417,6 +699,7 @@ struct WorkoutDetailView: View {
             guidedExerciseIndex += 1
             guidedSetIndex = 0
         } else {
+            sessionState = .paused
             showGuidedComplete = true
         }
     }
@@ -424,29 +707,56 @@ struct WorkoutDetailView: View {
 
 /// Steps, tips, safety, and variations for an exercise (like Group Fitness routine detail).
 struct ExerciseStepsCard: View {
+    @EnvironmentObject var appSettings: AppSettingsStore
     let detail: ExerciseDetail
     var compact: Bool = true
+    var workoutMode: Bool = false
+
+    private var bodyFont: Font {
+        workoutMode
+            ? HSTheme.font(.workoutBody, largeText: appSettings.largeText)
+            : (compact ? .callout : .body)
+    }
+
+    private var metaFont: Font {
+        workoutMode
+            ? HSTheme.font(.workoutMeta, largeText: appSettings.largeText)
+            : (compact ? .subheadline : .callout)
+    }
+
+    private var headerFont: Font {
+        workoutMode
+            ? HSTheme.font(.sectionHeader, largeText: appSettings.largeText)
+            : .subheadline.weight(.semibold)
+    }
+
+    private var secondaryColor: Color {
+        HSTheme.secondaryText(highContrast: appSettings.highContrast)
+    }
+
+    private var metaColor: Color {
+        HSTheme.metaText(highContrast: appSettings.highContrast)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             if !compact && !detail.summary.isEmpty {
                 Text(detail.summary)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(bodyFont)
+                    .foregroundStyle(secondaryColor)
             }
             if !detail.steps.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("How to do it")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .font(headerFont)
                     ForEach(Array(detail.steps.enumerated()), id: \.offset) { i, step in
                         HStack(alignment: .top, spacing: 6) {
                             Text("\(i + 1).")
-                                .font(.caption)
+                                .font(metaFont)
                                 .fontWeight(.medium)
                             Text(step)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .font(bodyFont)
+                                .foregroundStyle(secondaryColor)
                         }
                     }
                 }
@@ -454,54 +764,51 @@ struct ExerciseStepsCard: View {
             if !detail.tips.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Tips")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .font(headerFont)
                     ForEach(detail.tips, id: \.self) { tip in
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
-                                .font(.caption2)
+                                .font(metaFont)
                                 .foregroundStyle(HSTheme.accent)
                             Text(tip)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .font(bodyFont)
+                                .foregroundStyle(secondaryColor)
                         }
                     }
                 }
             }
             if !detail.muscles.isEmpty && !detail.isKidFriendly {
                 Text("Muscles: \(detail.muscles.joined(separator: ", "))")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .font(metaFont)
+                    .foregroundStyle(metaColor)
             }
             if let safety = detail.safetyNote, !safety.isEmpty {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Safety")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .font(headerFont)
                     Text(safety)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(bodyFont)
+                        .foregroundStyle(secondaryColor)
                 }
             }
             if detail.easyVariation != nil || detail.mediumVariation != nil || detail.difficultVariation != nil {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Variations by level")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .font(headerFont)
                     if let e = detail.easyVariation, !e.isEmpty {
                         Text("Easy: \(e)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(bodyFont)
+                            .foregroundStyle(secondaryColor)
                     }
                     if let m = detail.mediumVariation, !m.isEmpty {
                         Text("Medium: \(m)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(bodyFont)
+                            .foregroundStyle(secondaryColor)
                     }
                     if let d = detail.difficultVariation, !d.isEmpty {
                         Text("Difficult: \(d)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(bodyFont)
+                            .foregroundStyle(secondaryColor)
                     }
                 }
             }
@@ -562,7 +869,7 @@ struct ExerciseRowView: View {
                         .foregroundStyle(.secondary)
                     Text("Rest \(exercise.restSeconds)s")
                         .font(.caption)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                 }
                 
                 HStack(spacing: 8) {
@@ -601,5 +908,6 @@ struct ExerciseRowView: View {
             .environmentObject(WorkoutStore())
             .environmentObject(ProgressStore())
             .environmentObject(u)
+            .environmentObject(AppSettingsStore())
     }
 }

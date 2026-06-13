@@ -8,7 +8,7 @@
 import SwiftUI
 
 private enum StandardTab: String, CaseIterable, Identifiable {
-    case workouts, dashboard, library
+    case workouts, dashboard, library, settings
 
     var id: String { rawValue }
 
@@ -17,6 +17,7 @@ private enum StandardTab: String, CaseIterable, Identifiable {
         case .workouts: return "Workouts"
         case .dashboard: return "Dashboard"
         case .library: return "Library"
+        case .settings: return "Display"
         }
     }
 
@@ -25,6 +26,7 @@ private enum StandardTab: String, CaseIterable, Identifiable {
         case .workouts: return "list.bullet"
         case .dashboard: return "chart.bar"
         case .library: return "book"
+        case .settings: return "textformat.size"
         }
     }
 }
@@ -91,6 +93,8 @@ struct MainTabView: View {
                         .tabItem { Label(StandardTab.dashboard.title, systemImage: StandardTab.dashboard.systemImage) }
                     ExerciseLibraryView()
                         .tabItem { Label(StandardTab.library.title, systemImage: StandardTab.library.systemImage) }
+                    AppSettingsView()
+                        .tabItem { Label(StandardTab.settings.title, systemImage: StandardTab.settings.systemImage) }
                 }
             }
         }
@@ -152,6 +156,7 @@ struct MainTabView: View {
         case .workouts: ContentView()
         case .dashboard: DashboardView()
         case .library: ExerciseLibraryView()
+        case .settings: AppSettingsView()
         }
     }
 
@@ -188,4 +193,5 @@ struct MainTabView: View {
         .environmentObject(UserStore())
         .environmentObject(WorkoutStore())
         .environmentObject(ProgressStore())
+        .environmentObject(AppSettingsStore())
 }

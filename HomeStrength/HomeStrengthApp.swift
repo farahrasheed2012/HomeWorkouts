@@ -13,6 +13,7 @@ struct HomeStrengthApp: App {
     @StateObject private var workoutStore = WorkoutStore()
     @StateObject private var progressStore = ProgressStore()
     @StateObject private var groupFitnessStore = GroupFitnessStore()
+    @StateObject private var appSettings = AppSettingsStore()
     
     var body: some Scene {
         WindowGroup {
@@ -22,6 +23,8 @@ struct HomeStrengthApp: App {
                     .environmentObject(workoutStore)
                     .environmentObject(progressStore)
                     .environmentObject(groupFitnessStore)
+                    .environmentObject(appSettings)
+                    .appReadabilitySettings(appSettings)
             } else {
                 UserSelectionView()
                     .environmentObject(userStore)

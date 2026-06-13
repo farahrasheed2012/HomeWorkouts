@@ -15,6 +15,7 @@ struct ContentView: View {
     @State private var showDesignWorkout = false
     @State private var showGenerator = false
     @State private var showProfilePicker = false
+    @State private var workoutToStart: Workout?
     
     private var currentProfileType: UserProfileType? {
         userStore.currentUser?.profileType
@@ -230,11 +231,24 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showGenerator) {
                 if let profile = currentProfileType {
-                    RandomWorkoutGeneratorView(profileType: profile)
-                        .environmentObject(userStore)
-                        .environmentObject(store)
-                        .environmentObject(progressStore)
+                    RandomWorkoutGeneratorView(
+                        profileType: profile,
+                        onStartWorkout: { workout in
+                            showGenerator = false
+                            workoutToStart = workout
+                        }
+                    )
+                    .environmentObject(userStore)
+                    .environmentObject(store)
+                    .environmentObject(progressStore)
+                    .platformSheetFrame()
                 }
+            }
+            .platformFullScreenCover(item: $workoutToStart) { workout in
+                NavigationStack {
+                    WorkoutDetailView(workout: workout, startGuidedOnAppear: true)
+                }
+                .platformWorkoutSessionFrame()
             }
         }
     }

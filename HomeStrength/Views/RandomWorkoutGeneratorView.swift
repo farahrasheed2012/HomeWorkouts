@@ -13,6 +13,7 @@ struct RandomWorkoutGeneratorView: View {
     @EnvironmentObject var store: WorkoutStore
     
     let profileType: UserProfileType
+    var onStartWorkout: ((Workout) -> Void)? = nil
     
     @State private var selectedEquipment: Set<Equipment> = []
     @State private var duration: GeneratorDuration = .min30
@@ -203,7 +204,9 @@ struct RandomWorkoutGeneratorView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(HSTheme.accent)
                     
-                    NavigationLink(value: workout) {
+                    Button {
+                        onStartWorkout?(workout)
+                    } label: {
                         Label("Start workout", systemImage: "play.fill")
                             .frame(maxWidth: .infinity)
                     }
@@ -211,9 +214,6 @@ struct RandomWorkoutGeneratorView: View {
                 }
             }
             .padding()
-        }
-        .navigationDestination(for: Workout.self) { w in
-            WorkoutDetailView(workout: w)
         }
         .alert("Saved!", isPresented: $showSaveConfirmation) {
             Button("OK") {
